@@ -72,14 +72,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Acessoria Atlântida — Sistema de Treinos" },
+      {
+        name: "description",
+        content:
+          "Plataforma de treinos e acompanhamento da Acessoria Atlântida — treinos personalizados, check-in na academia e histórico mensal.",
+      },
+      { property: "og:title", content: "Acessoria Atlântida — Sistema de Treinos" },
+      {
+        property: "og:description",
+        content: "Treinos personalizados, check-in e acompanhamento mensal.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
