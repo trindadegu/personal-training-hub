@@ -14,7 +14,222 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admin_credentials: {
+        Row: {
+          id: number
+          password: string
+          updated_at: string
+          username: string
+          whatsapp: string | null
+        }
+        Insert: {
+          id: number
+          password: string
+          updated_at?: string
+          username: string
+          whatsapp?: string | null
+        }
+        Update: {
+          id?: number
+          password?: string
+          updated_at?: string
+          username?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      alunos: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          telefone: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          nome: string
+          telefone?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          telefone?: string | null
+        }
+        Relationships: []
+      }
+      checkins: {
+        Row: {
+          aluno_id: string
+          aluno_nome: string
+          created_at: string
+          distance_m: number | null
+          gym_address: string | null
+          gym_name: string
+          id: string
+          lat_aluno: number | null
+          lat_gym: number | null
+          lng_aluno: number | null
+          lng_gym: number | null
+        }
+        Insert: {
+          aluno_id: string
+          aluno_nome: string
+          created_at?: string
+          distance_m?: number | null
+          gym_address?: string | null
+          gym_name: string
+          id?: string
+          lat_aluno?: number | null
+          lat_gym?: number | null
+          lng_aluno?: number | null
+          lng_gym?: number | null
+        }
+        Update: {
+          aluno_id?: string
+          aluno_nome?: string
+          created_at?: string
+          distance_m?: number | null
+          gym_address?: string | null
+          gym_name?: string
+          id?: string
+          lat_aluno?: number | null
+          lat_gym?: number | null
+          lng_aluno?: number | null
+          lng_gym?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checkins_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      progresso: {
+        Row: {
+          aluno_id: string
+          progresso: Json
+          updated_at: string
+        }
+        Insert: {
+          aluno_id: string
+          progresso?: Json
+          updated_at?: string
+        }
+        Update: {
+          aluno_id?: string
+          progresso?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progresso_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: true
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      treino_historico: {
+        Row: {
+          aluno_id: string
+          checkin_id: string | null
+          created_at: string
+          data: string
+          dia_semana: string
+          exercicios_feitos: Json
+          foco: string | null
+          id: string
+          total_exercicios: number
+        }
+        Insert: {
+          aluno_id: string
+          checkin_id?: string | null
+          created_at?: string
+          data: string
+          dia_semana: string
+          exercicios_feitos?: Json
+          foco?: string | null
+          id?: string
+          total_exercicios?: number
+        }
+        Update: {
+          aluno_id?: string
+          checkin_id?: string | null
+          created_at?: string
+          data?: string
+          dia_semana?: string
+          exercicios_feitos?: Json
+          foco?: string | null
+          id?: string
+          total_exercicios?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "treino_historico_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "treino_historico_checkin_id_fkey"
+            columns: ["checkin_id"]
+            isOneToOne: false
+            referencedRelation: "checkins"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      treinos: {
+        Row: {
+          aluno_id: string
+          treino: Json
+          updated_at: string
+        }
+        Insert: {
+          aluno_id: string
+          treino?: Json
+          updated_at?: string
+        }
+        Update: {
+          aluno_id?: string
+          treino?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "treinos_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: true
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      treinos_padroes: {
+        Row: {
+          id: number
+          treino: Json
+          updated_at: string
+        }
+        Insert: {
+          id: number
+          treino?: Json
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          treino?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
