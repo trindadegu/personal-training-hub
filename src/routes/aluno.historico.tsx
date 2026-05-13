@@ -172,19 +172,19 @@ function HistoricoPage() {
         <div className="h-44">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-              <XAxis dataKey="semana" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis allowDecimals={false} stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} width={20} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="semana" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
+              <YAxis allowDecimals={false} stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} width={20} />
               <Tooltip
-                cursor={{ fill: "hsl(var(--muted) / 0.4)" }}
+                cursor={{ fill: "color-mix(in oklab, var(--muted) 40%, transparent)" }}
                 contentStyle={{
-                  background: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
+                  background: "var(--card)",
+                  border: "1px solid var(--border)",
                   borderRadius: 12,
                   fontSize: 12,
                 }}
               />
-              <Bar dataKey="treinos" radius={[8, 8, 0, 0]} fill="oklch(var(--primary))" />
+              <Bar dataKey="treinos" radius={[8, 8, 0, 0]} fill="var(--primary)" />
             </BarChart>
           </ResponsiveContainer>
         </div>
