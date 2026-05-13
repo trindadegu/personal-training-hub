@@ -13,6 +13,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AlunoRouteImport } from './routes/aluno'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlunoIndexRouteImport } from './routes/aluno.index'
+import { Route as AlunoHistoricoRouteImport } from './routes/aluno.historico'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -34,16 +35,23 @@ const AlunoIndexRoute = AlunoIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AlunoRoute,
 } as any)
+const AlunoHistoricoRoute = AlunoHistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
+  getParentRoute: () => AlunoRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/aluno': typeof AlunoRouteWithChildren
   '/login': typeof LoginRoute
+  '/aluno/historico': typeof AlunoHistoricoRoute
   '/aluno/': typeof AlunoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/aluno/historico': typeof AlunoHistoricoRoute
   '/aluno': typeof AlunoIndexRoute
 }
 export interface FileRoutesById {
@@ -51,14 +59,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/aluno': typeof AlunoRouteWithChildren
   '/login': typeof LoginRoute
+  '/aluno/historico': typeof AlunoHistoricoRoute
   '/aluno/': typeof AlunoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/aluno' | '/login' | '/aluno/'
+  fullPaths: '/' | '/aluno' | '/login' | '/aluno/historico' | '/aluno/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/aluno'
-  id: '__root__' | '/' | '/aluno' | '/login' | '/aluno/'
+  to: '/' | '/login' | '/aluno/historico' | '/aluno'
+  id: '__root__' | '/' | '/aluno' | '/login' | '/aluno/historico' | '/aluno/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -97,14 +106,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlunoIndexRouteImport
       parentRoute: typeof AlunoRoute
     }
+    '/aluno/historico': {
+      id: '/aluno/historico'
+      path: '/historico'
+      fullPath: '/aluno/historico'
+      preLoaderRoute: typeof AlunoHistoricoRouteImport
+      parentRoute: typeof AlunoRoute
+    }
   }
 }
 
 interface AlunoRouteChildren {
+  AlunoHistoricoRoute: typeof AlunoHistoricoRoute
   AlunoIndexRoute: typeof AlunoIndexRoute
 }
 
 const AlunoRouteChildren: AlunoRouteChildren = {
+  AlunoHistoricoRoute: AlunoHistoricoRoute,
   AlunoIndexRoute: AlunoIndexRoute,
 }
 
