@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AlunoRouteImport } from './routes/aluno'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AlunoIndexRouteImport } from './routes/aluno.index'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -28,34 +29,41 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlunoIndexRoute = AlunoIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AlunoRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/aluno': typeof AlunoRoute
+  '/aluno': typeof AlunoRouteWithChildren
   '/login': typeof LoginRoute
+  '/aluno/': typeof AlunoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/aluno': typeof AlunoRoute
   '/login': typeof LoginRoute
+  '/aluno': typeof AlunoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/aluno': typeof AlunoRoute
+  '/aluno': typeof AlunoRouteWithChildren
   '/login': typeof LoginRoute
+  '/aluno/': typeof AlunoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/aluno' | '/login'
+  fullPaths: '/' | '/aluno' | '/login' | '/aluno/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/aluno' | '/login'
-  id: '__root__' | '/' | '/aluno' | '/login'
+  to: '/' | '/login' | '/aluno'
+  id: '__root__' | '/' | '/aluno' | '/login' | '/aluno/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AlunoRoute: typeof AlunoRoute
+  AlunoRoute: typeof AlunoRouteWithChildren
   LoginRoute: typeof LoginRoute
 }
 
@@ -82,14 +90,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aluno/': {
+      id: '/aluno/'
+      path: '/'
+      fullPath: '/aluno/'
+      preLoaderRoute: typeof AlunoIndexRouteImport
+      parentRoute: typeof AlunoRoute
+    }
   }
 }
 
+interface AlunoRouteChildren {
+  AlunoIndexRoute: typeof AlunoIndexRoute
+}
+
+const AlunoRouteChildren: AlunoRouteChildren = {
+  AlunoIndexRoute: AlunoIndexRoute,
+}
+
+const AlunoRouteWithChildren = AlunoRoute._addFileChildren(AlunoRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AlunoRoute: AlunoRoute,
+  AlunoRoute: AlunoRouteWithChildren,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
