@@ -2,7 +2,8 @@ import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tansta
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/app/theme-toggle";
-import { clearStudentSession, getStudentSession, type StudentSession } from "@/lib/session";
+import { clearStudentSession, getStudentSession } from "@/lib/session";
+import type { StudentSession } from "@/lib/types";
 import { CalendarDays, Dumbbell, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/aluno")({
