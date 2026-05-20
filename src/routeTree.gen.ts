@@ -11,9 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AlunoRouteImport } from './routes/aluno'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlunoIndexRouteImport } from './routes/aluno.index'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AlunoHistoricoRouteImport } from './routes/aluno.historico'
+import { Route as AdminTreinosRouteImport } from './routes/admin.treinos'
+import { Route as AdminPadraoRouteImport } from './routes/admin.padrao'
+import { Route as AdminConfiguracoesRouteImport } from './routes/admin.configuracoes'
+import { Route as AdminCheckinsRouteImport } from './routes/admin.checkins'
+import { Route as AdminAlunosRouteImport } from './routes/admin.alunos'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -23,6 +30,11 @@ const LoginRoute = LoginRouteImport.update({
 const AlunoRoute = AlunoRouteImport.update({
   id: '/aluno',
   path: '/aluno',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -35,43 +47,129 @@ const AlunoIndexRoute = AlunoIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AlunoRoute,
 } as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AlunoHistoricoRoute = AlunoHistoricoRouteImport.update({
   id: '/historico',
   path: '/historico',
   getParentRoute: () => AlunoRoute,
 } as any)
+const AdminTreinosRoute = AdminTreinosRouteImport.update({
+  id: '/treinos',
+  path: '/treinos',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPadraoRoute = AdminPadraoRouteImport.update({
+  id: '/padrao',
+  path: '/padrao',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminConfiguracoesRoute = AdminConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCheckinsRoute = AdminCheckinsRouteImport.update({
+  id: '/checkins',
+  path: '/checkins',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAlunosRoute = AdminAlunosRouteImport.update({
+  id: '/alunos',
+  path: '/alunos',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/aluno': typeof AlunoRouteWithChildren
   '/login': typeof LoginRoute
+  '/admin/alunos': typeof AdminAlunosRoute
+  '/admin/checkins': typeof AdminCheckinsRoute
+  '/admin/configuracoes': typeof AdminConfiguracoesRoute
+  '/admin/padrao': typeof AdminPadraoRoute
+  '/admin/treinos': typeof AdminTreinosRoute
   '/aluno/historico': typeof AlunoHistoricoRoute
+  '/admin/': typeof AdminIndexRoute
   '/aluno/': typeof AlunoIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/admin/alunos': typeof AdminAlunosRoute
+  '/admin/checkins': typeof AdminCheckinsRoute
+  '/admin/configuracoes': typeof AdminConfiguracoesRoute
+  '/admin/padrao': typeof AdminPadraoRoute
+  '/admin/treinos': typeof AdminTreinosRoute
   '/aluno/historico': typeof AlunoHistoricoRoute
+  '/admin': typeof AdminIndexRoute
   '/aluno': typeof AlunoIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/aluno': typeof AlunoRouteWithChildren
   '/login': typeof LoginRoute
+  '/admin/alunos': typeof AdminAlunosRoute
+  '/admin/checkins': typeof AdminCheckinsRoute
+  '/admin/configuracoes': typeof AdminConfiguracoesRoute
+  '/admin/padrao': typeof AdminPadraoRoute
+  '/admin/treinos': typeof AdminTreinosRoute
   '/aluno/historico': typeof AlunoHistoricoRoute
+  '/admin/': typeof AdminIndexRoute
   '/aluno/': typeof AlunoIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/aluno' | '/login' | '/aluno/historico' | '/aluno/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/aluno'
+    | '/login'
+    | '/admin/alunos'
+    | '/admin/checkins'
+    | '/admin/configuracoes'
+    | '/admin/padrao'
+    | '/admin/treinos'
+    | '/aluno/historico'
+    | '/admin/'
+    | '/aluno/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/aluno/historico' | '/aluno'
-  id: '__root__' | '/' | '/aluno' | '/login' | '/aluno/historico' | '/aluno/'
+  to:
+    | '/'
+    | '/login'
+    | '/admin/alunos'
+    | '/admin/checkins'
+    | '/admin/configuracoes'
+    | '/admin/padrao'
+    | '/admin/treinos'
+    | '/aluno/historico'
+    | '/admin'
+    | '/aluno'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/aluno'
+    | '/login'
+    | '/admin/alunos'
+    | '/admin/checkins'
+    | '/admin/configuracoes'
+    | '/admin/padrao'
+    | '/admin/treinos'
+    | '/aluno/historico'
+    | '/admin/'
+    | '/aluno/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AlunoRoute: typeof AlunoRouteWithChildren
   LoginRoute: typeof LoginRoute
 }
@@ -92,6 +190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlunoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -106,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlunoIndexRouteImport
       parentRoute: typeof AlunoRoute
     }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/aluno/historico': {
       id: '/aluno/historico'
       path: '/historico'
@@ -113,8 +225,63 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlunoHistoricoRouteImport
       parentRoute: typeof AlunoRoute
     }
+    '/admin/treinos': {
+      id: '/admin/treinos'
+      path: '/treinos'
+      fullPath: '/admin/treinos'
+      preLoaderRoute: typeof AdminTreinosRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/padrao': {
+      id: '/admin/padrao'
+      path: '/padrao'
+      fullPath: '/admin/padrao'
+      preLoaderRoute: typeof AdminPadraoRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/configuracoes': {
+      id: '/admin/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/admin/configuracoes'
+      preLoaderRoute: typeof AdminConfiguracoesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/checkins': {
+      id: '/admin/checkins'
+      path: '/checkins'
+      fullPath: '/admin/checkins'
+      preLoaderRoute: typeof AdminCheckinsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/alunos': {
+      id: '/admin/alunos'
+      path: '/alunos'
+      fullPath: '/admin/alunos'
+      preLoaderRoute: typeof AdminAlunosRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
+
+interface AdminRouteChildren {
+  AdminAlunosRoute: typeof AdminAlunosRoute
+  AdminCheckinsRoute: typeof AdminCheckinsRoute
+  AdminConfiguracoesRoute: typeof AdminConfiguracoesRoute
+  AdminPadraoRoute: typeof AdminPadraoRoute
+  AdminTreinosRoute: typeof AdminTreinosRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAlunosRoute: AdminAlunosRoute,
+  AdminCheckinsRoute: AdminCheckinsRoute,
+  AdminConfiguracoesRoute: AdminConfiguracoesRoute,
+  AdminPadraoRoute: AdminPadraoRoute,
+  AdminTreinosRoute: AdminTreinosRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface AlunoRouteChildren {
   AlunoHistoricoRoute: typeof AlunoHistoricoRoute
@@ -130,6 +297,7 @@ const AlunoRouteWithChildren = AlunoRoute._addFileChildren(AlunoRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   AlunoRoute: AlunoRouteWithChildren,
   LoginRoute: LoginRoute,
 }
