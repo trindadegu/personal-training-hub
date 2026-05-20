@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Users,
   Dumbbell,
@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/app/theme-toggle";
 import { clearAdminSession, getAdminSession } from "@/lib/session";
+import type { AdminSession } from "@/lib/types";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/admin")({
@@ -30,13 +31,17 @@ const NAV = [
 
 function AdminLayout() {
   const navigate = useNavigate();
-  const session = typeof window !== "undefined" ? getAdminSession() : null;
+  const [session, setSession] = useState<AdminSession | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!session) navigate({ to: "/login" });
-  }, [session, navigate]);
+    const s = getAdminSession();
+    setSession(s);
+    setReady(true);
+    if (!s) navigate({ to: "/login" });
+  }, [navigate]);
 
-  if (!session) return null;
+  if (!ready || !session) return null;
 
   return (
     <div className="min-h-screen bg-background">

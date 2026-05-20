@@ -1,8 +1,9 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/app/theme-toggle";
 import { clearStudentSession, getStudentSession } from "@/lib/session";
+import type { StudentSession } from "@/lib/types";
 import { CalendarDays, Dumbbell, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/aluno")({
@@ -12,13 +13,17 @@ export const Route = createFileRoute("/aluno")({
 function AlunoLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const session = typeof window !== "undefined" ? getStudentSession() : null;
+  const [session, setSession] = useState<StudentSession | null>(null);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!session) navigate({ to: "/login" });
-  }, [session, navigate]);
+    const s = getStudentSession();
+    setSession(s);
+    setReady(true);
+    if (!s) navigate({ to: "/login" });
+  }, [navigate]);
 
-  if (!session) return null;
+  if (!ready || !session) return null;
 
   const tabs = [
     { to: "/aluno", label: "Treino", icon: Dumbbell, exact: true },
