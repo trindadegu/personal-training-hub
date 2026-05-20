@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AlunoRouteImport } from './routes/aluno'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AlunoIndexRouteImport } from './routes/aluno.index'
 import { Route as AlunoHistoricoRouteImport } from './routes/aluno.historico'
@@ -23,6 +24,11 @@ const LoginRoute = LoginRouteImport.update({
 const AlunoRoute = AlunoRouteImport.update({
   id: '/aluno',
   path: '/aluno',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,6 +49,7 @@ const AlunoHistoricoRoute = AlunoHistoricoRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/aluno': typeof AlunoRouteWithChildren
   '/login': typeof LoginRoute
   '/aluno/historico': typeof AlunoHistoricoRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/login': typeof LoginRoute
   '/aluno/historico': typeof AlunoHistoricoRoute
   '/aluno': typeof AlunoIndexRoute
@@ -57,6 +65,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/aluno': typeof AlunoRouteWithChildren
   '/login': typeof LoginRoute
   '/aluno/historico': typeof AlunoHistoricoRoute
@@ -64,14 +73,28 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/aluno' | '/login' | '/aluno/historico' | '/aluno/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/aluno'
+    | '/login'
+    | '/aluno/historico'
+    | '/aluno/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/aluno/historico' | '/aluno'
-  id: '__root__' | '/' | '/aluno' | '/login' | '/aluno/historico' | '/aluno/'
+  to: '/' | '/admin' | '/login' | '/aluno/historico' | '/aluno'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/aluno'
+    | '/login'
+    | '/aluno/historico'
+    | '/aluno/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   AlunoRoute: typeof AlunoRouteWithChildren
   LoginRoute: typeof LoginRoute
 }
@@ -90,6 +113,13 @@ declare module '@tanstack/react-router' {
       path: '/aluno'
       fullPath: '/aluno'
       preLoaderRoute: typeof AlunoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -130,9 +160,20 @@ const AlunoRouteWithChildren = AlunoRoute._addFileChildren(AlunoRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   AlunoRoute: AlunoRouteWithChildren,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
