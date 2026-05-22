@@ -17,10 +17,13 @@ import { Route as AlunoIndexRouteImport } from './routes/aluno.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AlunoHistoricoRouteImport } from './routes/aluno.historico'
 import { Route as AdminTreinosRouteImport } from './routes/admin.treinos'
+import { Route as AdminPessoalRouteImport } from './routes/admin.pessoal'
 import { Route as AdminPadraoRouteImport } from './routes/admin.padrao'
+import { Route as AdminFinanceiroRouteImport } from './routes/admin.financeiro'
 import { Route as AdminConfiguracoesRouteImport } from './routes/admin.configuracoes'
 import { Route as AdminCheckinsRouteImport } from './routes/admin.checkins'
 import { Route as AdminAlunosRouteImport } from './routes/admin.alunos'
+import { Route as AdminAlunoIdRouteImport } from './routes/admin.aluno.$id'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -62,9 +65,19 @@ const AdminTreinosRoute = AdminTreinosRouteImport.update({
   path: '/treinos',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPessoalRoute = AdminPessoalRouteImport.update({
+  id: '/pessoal',
+  path: '/pessoal',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPadraoRoute = AdminPadraoRouteImport.update({
   id: '/padrao',
   path: '/padrao',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFinanceiroRoute = AdminFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminConfiguracoesRoute = AdminConfiguracoesRouteImport.update({
@@ -82,6 +95,11 @@ const AdminAlunosRoute = AdminAlunosRouteImport.update({
   path: '/alunos',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAlunoIdRoute = AdminAlunoIdRouteImport.update({
+  id: '/aluno/$id',
+  path: '/aluno/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -91,11 +109,14 @@ export interface FileRoutesByFullPath {
   '/admin/alunos': typeof AdminAlunosRoute
   '/admin/checkins': typeof AdminCheckinsRoute
   '/admin/configuracoes': typeof AdminConfiguracoesRoute
+  '/admin/financeiro': typeof AdminFinanceiroRoute
   '/admin/padrao': typeof AdminPadraoRoute
+  '/admin/pessoal': typeof AdminPessoalRoute
   '/admin/treinos': typeof AdminTreinosRoute
   '/aluno/historico': typeof AlunoHistoricoRoute
   '/admin/': typeof AdminIndexRoute
   '/aluno/': typeof AlunoIndexRoute
+  '/admin/aluno/$id': typeof AdminAlunoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -103,11 +124,14 @@ export interface FileRoutesByTo {
   '/admin/alunos': typeof AdminAlunosRoute
   '/admin/checkins': typeof AdminCheckinsRoute
   '/admin/configuracoes': typeof AdminConfiguracoesRoute
+  '/admin/financeiro': typeof AdminFinanceiroRoute
   '/admin/padrao': typeof AdminPadraoRoute
+  '/admin/pessoal': typeof AdminPessoalRoute
   '/admin/treinos': typeof AdminTreinosRoute
   '/aluno/historico': typeof AlunoHistoricoRoute
   '/admin': typeof AdminIndexRoute
   '/aluno': typeof AlunoIndexRoute
+  '/admin/aluno/$id': typeof AdminAlunoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -118,11 +142,14 @@ export interface FileRoutesById {
   '/admin/alunos': typeof AdminAlunosRoute
   '/admin/checkins': typeof AdminCheckinsRoute
   '/admin/configuracoes': typeof AdminConfiguracoesRoute
+  '/admin/financeiro': typeof AdminFinanceiroRoute
   '/admin/padrao': typeof AdminPadraoRoute
+  '/admin/pessoal': typeof AdminPessoalRoute
   '/admin/treinos': typeof AdminTreinosRoute
   '/aluno/historico': typeof AlunoHistoricoRoute
   '/admin/': typeof AdminIndexRoute
   '/aluno/': typeof AlunoIndexRoute
+  '/admin/aluno/$id': typeof AdminAlunoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -134,11 +161,14 @@ export interface FileRouteTypes {
     | '/admin/alunos'
     | '/admin/checkins'
     | '/admin/configuracoes'
+    | '/admin/financeiro'
     | '/admin/padrao'
+    | '/admin/pessoal'
     | '/admin/treinos'
     | '/aluno/historico'
     | '/admin/'
     | '/aluno/'
+    | '/admin/aluno/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -146,11 +176,14 @@ export interface FileRouteTypes {
     | '/admin/alunos'
     | '/admin/checkins'
     | '/admin/configuracoes'
+    | '/admin/financeiro'
     | '/admin/padrao'
+    | '/admin/pessoal'
     | '/admin/treinos'
     | '/aluno/historico'
     | '/admin'
     | '/aluno'
+    | '/admin/aluno/$id'
   id:
     | '__root__'
     | '/'
@@ -160,11 +193,14 @@ export interface FileRouteTypes {
     | '/admin/alunos'
     | '/admin/checkins'
     | '/admin/configuracoes'
+    | '/admin/financeiro'
     | '/admin/padrao'
+    | '/admin/pessoal'
     | '/admin/treinos'
     | '/aluno/historico'
     | '/admin/'
     | '/aluno/'
+    | '/admin/aluno/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -232,11 +268,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminTreinosRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/pessoal': {
+      id: '/admin/pessoal'
+      path: '/pessoal'
+      fullPath: '/admin/pessoal'
+      preLoaderRoute: typeof AdminPessoalRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/padrao': {
       id: '/admin/padrao'
       path: '/padrao'
       fullPath: '/admin/padrao'
       preLoaderRoute: typeof AdminPadraoRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/financeiro': {
+      id: '/admin/financeiro'
+      path: '/financeiro'
+      fullPath: '/admin/financeiro'
+      preLoaderRoute: typeof AdminFinanceiroRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/configuracoes': {
@@ -260,6 +310,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAlunosRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/aluno/$id': {
+      id: '/admin/aluno/$id'
+      path: '/aluno/$id'
+      fullPath: '/admin/aluno/$id'
+      preLoaderRoute: typeof AdminAlunoIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
@@ -267,18 +324,24 @@ interface AdminRouteChildren {
   AdminAlunosRoute: typeof AdminAlunosRoute
   AdminCheckinsRoute: typeof AdminCheckinsRoute
   AdminConfiguracoesRoute: typeof AdminConfiguracoesRoute
+  AdminFinanceiroRoute: typeof AdminFinanceiroRoute
   AdminPadraoRoute: typeof AdminPadraoRoute
+  AdminPessoalRoute: typeof AdminPessoalRoute
   AdminTreinosRoute: typeof AdminTreinosRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminAlunoIdRoute: typeof AdminAlunoIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAlunosRoute: AdminAlunosRoute,
   AdminCheckinsRoute: AdminCheckinsRoute,
   AdminConfiguracoesRoute: AdminConfiguracoesRoute,
+  AdminFinanceiroRoute: AdminFinanceiroRoute,
   AdminPadraoRoute: AdminPadraoRoute,
+  AdminPessoalRoute: AdminPessoalRoute,
   AdminTreinosRoute: AdminTreinosRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminAlunoIdRoute: AdminAlunoIdRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -304,13 +367,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

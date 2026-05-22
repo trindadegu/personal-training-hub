@@ -38,24 +38,72 @@ export type Database = {
         }
         Relationships: []
       }
+      aluno_notas: {
+        Row: {
+          aluno_id: string
+          conteudo: string
+          created_at: string
+          data: string
+          id: string
+          tipo: string
+          titulo: string
+        }
+        Insert: {
+          aluno_id: string
+          conteudo: string
+          created_at?: string
+          data?: string
+          id?: string
+          tipo?: string
+          titulo: string
+        }
+        Update: {
+          aluno_id?: string
+          conteudo?: string
+          created_at?: string
+          data?: string
+          id?: string
+          tipo?: string
+          titulo?: string
+        }
+        Relationships: []
+      }
       alunos: {
         Row: {
           created_at: string
+          data_inicio: string | null
+          dia_vencimento: number | null
           id: string
           nome: string
+          objetivo: string | null
+          observacoes: string | null
+          status: string | null
           telefone: string | null
+          valor_mensalidade: number | null
         }
         Insert: {
           created_at?: string
+          data_inicio?: string | null
+          dia_vencimento?: number | null
           id: string
           nome: string
+          objetivo?: string | null
+          observacoes?: string | null
+          status?: string | null
           telefone?: string | null
+          valor_mensalidade?: number | null
         }
         Update: {
           created_at?: string
+          data_inicio?: string | null
+          dia_vencimento?: number | null
           id?: string
           nome?: string
+          objetivo?: string | null
+          observacoes?: string | null
+          status?: string | null
           telefone?: string | null
+          valor_mensalidade?: number | null
         }
         Relationships: []
       }
@@ -108,6 +156,138 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      configuracoes: {
+        Row: {
+          chave: string
+          updated_at: string
+          valor: string | null
+        }
+        Insert: {
+          chave: string
+          updated_at?: string
+          valor?: string | null
+        }
+        Update: {
+          chave?: string
+          updated_at?: string
+          valor?: string | null
+        }
+        Relationships: []
+      }
+      despesas_recorrentes: {
+        Row: {
+          ativo: boolean
+          categoria: string | null
+          created_at: string
+          descricao: string
+          dia: number
+          escopo: string
+          id: string
+          ultimo_gerado_mes: string | null
+          valor: number
+        }
+        Insert: {
+          ativo?: boolean
+          categoria?: string | null
+          created_at?: string
+          descricao: string
+          dia?: number
+          escopo?: string
+          id?: string
+          ultimo_gerado_mes?: string | null
+          valor: number
+        }
+        Update: {
+          ativo?: boolean
+          categoria?: string | null
+          created_at?: string
+          descricao?: string
+          dia?: number
+          escopo?: string
+          id?: string
+          ultimo_gerado_mes?: string | null
+          valor?: number
+        }
+        Relationships: []
+      }
+      financeiro_lancamentos: {
+        Row: {
+          aluno_id: string | null
+          categoria: string | null
+          created_at: string
+          data: string
+          descricao: string
+          escopo: string
+          id: string
+          pagamento_id: string | null
+          recorrente: boolean
+          recorrente_id: string | null
+          tipo: string
+          valor: number
+        }
+        Insert: {
+          aluno_id?: string | null
+          categoria?: string | null
+          created_at?: string
+          data?: string
+          descricao: string
+          escopo?: string
+          id?: string
+          pagamento_id?: string | null
+          recorrente?: boolean
+          recorrente_id?: string | null
+          tipo: string
+          valor: number
+        }
+        Update: {
+          aluno_id?: string | null
+          categoria?: string | null
+          created_at?: string
+          data?: string
+          descricao?: string
+          escopo?: string
+          id?: string
+          pagamento_id?: string | null
+          recorrente?: boolean
+          recorrente_id?: string | null
+          tipo?: string
+          valor?: number
+        }
+        Relationships: []
+      }
+      pagamentos: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          id: string
+          mes_referencia: string
+          pago_em: string | null
+          status: string
+          valor: number
+          vencimento: string
+        }
+        Insert: {
+          aluno_id: string
+          created_at?: string
+          id?: string
+          mes_referencia: string
+          pago_em?: string | null
+          status?: string
+          valor?: number
+          vencimento: string
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          id?: string
+          mes_referencia?: string
+          pago_em?: string | null
+          status?: string
+          valor?: number
+          vencimento?: string
+        }
+        Relationships: []
       }
       progresso: {
         Row: {
