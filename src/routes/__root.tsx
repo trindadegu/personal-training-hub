@@ -86,6 +86,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Acessoria Atlântida — Sistema de Treinos" },
+      { name: "description", content: "Personal Training Hub is a web application for personal trainers to manage clients and track their progress." },
+      { property: "og:description", content: "Personal Training Hub is a web application for personal trainers to manage clients and track their progress." },
+      { name: "twitter:description", content: "Personal Training Hub is a web application for personal trainers to manage clients and track their progress." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dc95eda4-0908-4b0b-9ae5-412114c3dbe9/id-preview-4a38962a--8974b672-c915-451d-a7cf-d88937d62e74.lovable.app-1779320922874.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/dc95eda4-0908-4b0b-9ae5-412114c3dbe9/id-preview-4a38962a--8974b672-c915-451d-a7cf-d88937d62e74.lovable.app-1779320922874.png" },
     ],
     links: [
       {
