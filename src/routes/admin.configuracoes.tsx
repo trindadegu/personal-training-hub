@@ -6,8 +6,10 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAdminConfig, updateAdminConfig } from "@/lib/api/auth";
+import { getConfig, setConfig } from "@/lib/api/config";
 
 export const Route = createFileRoute("/admin/configuracoes")({
   component: ConfigPage,
@@ -30,12 +32,18 @@ function ConfigPage() {
     }
   }, [cfg]);
 
+  const { data: msgTpl } = useQuery({ queryKey: ["cfg-msg"], queryFn: () => getConfig("mensagem_cobranca") });
+  const [mensagem, setMensagem] = useState("");
+  useEffect(() => { if (msgTpl) setMensagem(msgTpl); }, [msgTpl]);
+
   async function save() {
     setSaving(true);
     try {
       await updateAdminConfig({ username: username.trim(), password, whatsapp: whatsapp.trim() });
+      if (mensagem.trim()) await setConfig("mensagem_cobranca", mensagem);
       toast.success("Configurações salvas!");
       qc.invalidateQueries({ queryKey: ["admin-config"] });
+      qc.invalidateQueries({ queryKey: ["cfg-msg"] });
     } catch (err: any) {
       toast.error(err?.message ?? "Erro.");
     } finally {
@@ -93,6 +101,21 @@ function ConfigPage() {
           <Button onClick={save} disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Salvar
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-display text-base">Mensagem de cobrança no WhatsApp</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Variáveis disponíveis: <code>{"{nome}"}</code>, <code>{"{mes}"}</code>, <code>{"{valor}"}</code>, <code>{"{vencimento}"}</code>.
+          </p>
+          <Textarea rows={5} value={mensagem} onChange={(e) => setMensagem(e.target.value)} />
+          <Button onClick={save} disabled={saving}>
+            <Save className="h-4 w-4" /> Salvar mensagem
           </Button>
         </CardContent>
       </Card>
