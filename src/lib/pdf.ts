@@ -85,7 +85,6 @@ export function exportProntuarioPDF(opts: {
     headStyles: { fillColor: [37, 99, 235], textColor: 255 },
     columnStyles: { 3: { cellWidth: 240 } },
   });
-  // @ts-expect-error lastAutoTable
   y = (doc as any).lastAutoTable.finalY + 18;
 
   if (y > 720) { doc.addPage(); y = margin; }
@@ -106,7 +105,6 @@ export function exportProntuarioPDF(opts: {
     styles: { fontSize: 9, cellPadding: 4 },
     headStyles: { fillColor: [37, 99, 235], textColor: 255 },
   });
-  // @ts-expect-error lastAutoTable
   y = (doc as any).lastAutoTable.finalY + 18;
 
   if (y > 720) { doc.addPage(); y = margin; }
