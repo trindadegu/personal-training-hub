@@ -37,6 +37,12 @@ export interface Aluno {
   nome: string;
   telefone?: string | null;
   created_at: string;
+  valor_mensalidade?: number | null;
+  dia_vencimento?: number | null;
+  status?: string | null;
+  objetivo?: string | null;
+  observacoes?: string | null;
+  data_inicio?: string | null;
 }
 
 export interface Checkin {

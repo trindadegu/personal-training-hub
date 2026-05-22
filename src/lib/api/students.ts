@@ -7,17 +7,31 @@ export async function listStudents(): Promise<Aluno[]> {
   return (data ?? []) as Aluno[];
 }
 
+export async function updateStudent(id: string, patch: Partial<Aluno>): Promise<void> {
+  const { error } = await supabase.from("alunos").update(patch).eq("id", id);
+  if (error) throw error;
+}
+
 export async function findStudent(id: string): Promise<Aluno | null> {
   const { data, error } = await supabase.from("alunos").select("*").eq("id", id).maybeSingle();
   if (error) throw error;
   return (data as Aluno) ?? null;
 }
 
-export async function createStudent(nome: string, telefone?: string): Promise<Aluno> {
+export async function createStudent(
+  nome: string,
+  opts: { telefone?: string; valor_mensalidade?: number; dia_vencimento?: number } = {}
+): Promise<Aluno> {
   const id = "aluno_" + Date.now();
   const { data, error } = await supabase
     .from("alunos")
-    .insert({ id, nome, telefone: telefone || null })
+    .insert({
+      id,
+      nome,
+      telefone: opts.telefone || null,
+      valor_mensalidade: opts.valor_mensalidade ?? 0,
+      dia_vencimento: opts.dia_vencimento ?? 5,
+    })
     .select()
     .single();
   if (error) throw error;
