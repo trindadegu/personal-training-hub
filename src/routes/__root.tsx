@@ -8,6 +8,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
+import { RouteLoadingBar } from "@/components/app/route-loading-bar";
 
 import appCss from "../styles.css?url";
 
@@ -125,6 +126,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <RouteLoadingBar />
       <Outlet />
       <Toaster richColors position="top-center" />
     </QueryClientProvider>
