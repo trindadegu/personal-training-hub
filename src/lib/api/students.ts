@@ -1,47 +1,49 @@
 import { supabase } from "@/integrations/supabase/client";
 import { emptyTraining, type Aluno, type Progresso, type TreinoSemana } from "../types";
+import {
+  listStudentsAdminFn,
+  listStudentsPublicFn,
+  findStudentAdminFn,
+  createStudentFn,
+  updateStudentFn,
+  deleteStudentFn,
+} from "./students.functions";
 
+/** Admin-only: full student rows. */
 export async function listStudents(): Promise<Aluno[]> {
-  const { data, error } = await supabase.from("alunos").select("*").order("nome");
-  if (error) throw error;
-  return (data ?? []) as Aluno[];
+  return ((await listStudentsAdminFn()) ?? []) as Aluno[];
+}
+
+/** Public: id + nome only (used by the login dropdown). */
+export async function listStudentsPublic(): Promise<Array<{ id: string; nome: string }>> {
+  return (await listStudentsPublicFn()) ?? [];
 }
 
 export async function updateStudent(id: string, patch: Partial<Aluno>): Promise<void> {
-  const { error } = await supabase.from("alunos").update(patch).eq("id", id);
-  if (error) throw error;
+  await updateStudentFn({ data: { id, patch: patch as any } });
 }
 
 export async function findStudent(id: string): Promise<Aluno | null> {
-  const { data, error } = await supabase.from("alunos").select("*").eq("id", id).maybeSingle();
-  if (error) throw error;
-  return (data as Aluno) ?? null;
+  return ((await findStudentAdminFn({ data: { id } })) as Aluno | null) ?? null;
 }
 
 export async function createStudent(
   nome: string,
   opts: { telefone?: string; valor_mensalidade?: number; dia_vencimento?: number } = {}
 ): Promise<Aluno> {
-  const id = "aluno_" + Date.now();
-  const { data, error } = await supabase
-    .from("alunos")
-    .insert({
-      id,
+  const row = await createStudentFn({
+    data: {
       nome,
-      telefone: opts.telefone || null,
-      valor_mensalidade: opts.valor_mensalidade ?? 0,
-      dia_vencimento: opts.dia_vencimento ?? 5,
-    })
-    .select()
-    .single();
-  if (error) throw error;
-  await supabase.from("treinos").insert({ aluno_id: id, treino: emptyTraining() as any });
-  return data as Aluno;
+      telefone: opts.telefone ?? null,
+      valor_mensalidade: opts.valor_mensalidade,
+      dia_vencimento: opts.dia_vencimento,
+    },
+  });
+  return row as Aluno;
 }
 
 export async function deleteStudent(id: string): Promise<void> {
-  const { error } = await supabase.from("alunos").delete().eq("id", id);
-  if (error) throw error;
+  await deleteStudentFn({ data: { id } });
 }
 
 export async function getTraining(alunoId: string): Promise<TreinoSemana> {
