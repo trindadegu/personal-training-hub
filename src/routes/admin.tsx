@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/app/theme-toggle";
-import { clearAdminSession, getAdminSession } from "@/lib/session";
+import { clearAdminSession } from "@/lib/session";
 import { logoutAdmin } from "@/lib/api/auth";
 import { getAdminMeFn } from "@/lib/api/auth.functions";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
