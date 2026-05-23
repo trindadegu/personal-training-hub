@@ -26,8 +26,8 @@ export const listStudentsAdminFn = createServerFn({ method: "GET" }).handler(asy
 
 /** Public: only id + nome, used by the login dropdown. */
 export const listStudentsPublicFn = createServerFn({ method: "GET" }).handler(async () => {
-  const { data, error } = await supabaseAdmin
-    .from("alunos_public" as any)
+  const { data, error } = await (supabaseAdmin as any)
+    .from("alunos_public")
     .select("id, nome")
     .order("nome");
   if (error) throw new Error(error.message);
