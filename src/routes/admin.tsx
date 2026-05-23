@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { redirect } from "@tanstack/react-router";
 import {
   Users,
   Dumbbell,
@@ -16,10 +16,17 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/app/theme-toggle";
 import { clearAdminSession, getAdminSession } from "@/lib/session";
 import { logoutAdmin } from "@/lib/api/auth";
-import type { AdminSession } from "@/lib/types";
+import { getAdminMeFn } from "@/lib/api/auth.functions";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 export const Route = createFileRoute("/admin")({
+  loader: async () => {
+    const me = await getAdminMeFn();
+    if (!me?.username) {
+      throw redirect({ to: "/login" });
+    }
+    return { username: me.username };
+  },
   component: AdminLayout,
 });
 
@@ -36,17 +43,7 @@ const NAV = [
 
 function AdminLayout() {
   const navigate = useNavigate();
-  const [session, setSession] = useState<AdminSession | null>(null);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    const s = getAdminSession();
-    setSession(s);
-    setReady(true);
-    if (!s) navigate({ to: "/login" });
-  }, [navigate]);
-
-  if (!ready || !session) return null;
+  const { username } = Route.useLoaderData();
 
   return (
     <div className="min-h-screen bg-background">
@@ -70,7 +67,7 @@ function AdminLayout() {
               </Sheet>
               <div>
                 <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Painel</p>
-                <p className="font-display text-base font-semibold leading-none">Admin · {session.username}</p>
+                <p className="font-display text-base font-semibold leading-none">Admin · {username}</p>
               </div>
             </div>
             <div className="flex items-center gap-1">
