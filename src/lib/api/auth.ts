@@ -1,4 +1,3 @@
-import { supabase } from "@/integrations/supabase/client";
 import {
   loginAdminFn,
   logoutAdminFn,
@@ -6,6 +5,7 @@ import {
   updateAdminConfigFn,
   getAdminWhatsappPublicFn,
 } from "./auth.functions";
+import { lookupStudentLoginFn } from "./students.functions";
 
 export async function loginAdmin(username: string, password: string): Promise<boolean> {
   const res = await loginAdminFn({ data: { username, password } });
@@ -35,13 +35,7 @@ export async function getAdminWhatsapp(): Promise<string | null> {
 }
 
 export async function loginStudent(id: string, password: string) {
-  const { data, error } = await supabase
-    .from("alunos")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
-  if (error) throw error;
-  if (!data) return null;
   if (id.slice(-6) !== password) return null;
-  return data;
+  const row = await lookupStudentLoginFn({ data: { id } });
+  return row;
 }

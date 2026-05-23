@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ThemeToggle } from "@/components/app/theme-toggle";
-import { listStudents } from "@/lib/api/students";
+import { listStudentsPublic } from "@/lib/api/students";
 import { loginAdmin, loginStudent, getAdminWhatsapp } from "@/lib/api/auth";
 import { setAdminSession, setStudentSession } from "@/lib/session";
 
@@ -131,8 +131,8 @@ function StudentLoginForm({ onDone }: { onDone: () => void }) {
   const [loading, setLoading] = useState(false);
 
   const { data: students = [] } = useQuery({
-    queryKey: ["alunos"],
-    queryFn: listStudents,
+    queryKey: ["alunos-public"],
+    queryFn: listStudentsPublic,
   });
 
   const { data: adminWpp } = useQuery({ queryKey: ["admin-whatsapp-public"], queryFn: getAdminWhatsapp });
