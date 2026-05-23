@@ -155,6 +155,13 @@ export type Database = {
             referencedRelation: "alunos"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "checkins_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       configuracoes: {
@@ -313,6 +320,13 @@ export type Database = {
             referencedRelation: "alunos"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "progresso_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: true
+            referencedRelation: "alunos_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       treino_historico: {
@@ -358,6 +372,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "treino_historico_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "treino_historico_checkin_id_fkey"
             columns: ["checkin_id"]
             isOneToOne: false
@@ -390,6 +411,13 @@ export type Database = {
             referencedRelation: "alunos"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "treinos_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: true
+            referencedRelation: "alunos_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       treinos_padroes: {
@@ -412,7 +440,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      alunos_public: {
+        Row: {
+          id: string | null
+          nome: string | null
+        }
+        Insert: {
+          id?: string | null
+          nome?: string | null
+        }
+        Update: {
+          id?: string | null
+          nome?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_admin_whatsapp: { Args: never; Returns: string }
