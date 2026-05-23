@@ -64,9 +64,9 @@ export const updateAdminConfigFn = createServerFn({ method: "POST" })
       .eq("id", 1);
     if (error) throw new Error(error.message);
     if (data.password && data.password.length > 0) {
-      const { error: pwErr } = await supabaseAdmin.rpc("set_admin_password" as never, {
+      const { error: pwErr } = await supabaseAdmin.rpc("set_admin_password", {
         _password: data.password,
-      } as never);
+      });
       if (pwErr) throw new Error(pwErr.message);
     }
     return { ok: true };
