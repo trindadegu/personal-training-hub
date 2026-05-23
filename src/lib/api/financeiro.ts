@@ -1,4 +1,12 @@
-import { supabase } from "@/integrations/supabase/client";
+import {
+  listLancamentosFn,
+  addLancamentoFn,
+  deleteLancamentoFn,
+  listRecorrentesFn,
+  addRecorrenteFn,
+  deleteRecorrenteFn,
+  gerarRecorrentesDoMesFn,
+} from "./financeiro.functions";
 
 export type Escopo = "negocio" | "pessoal";
 export type TipoLanc = "receita" | "despesa";
@@ -31,47 +39,48 @@ export interface Recorrente {
 }
 
 export async function listLancamentos(opts?: { escopo?: Escopo; from?: string; to?: string }) {
-  let q = supabase.from("financeiro_lancamentos").select("*").order("data", { ascending: false });
-  if (opts?.escopo) q = q.eq("escopo", opts.escopo);
-  if (opts?.from) q = q.gte("data", opts.from);
-  if (opts?.to) q = q.lte("data", opts.to);
-  const { data, error } = await q;
-  if (error) throw error;
-  return (data ?? []) as Lancamento[];
+  const rows = await listLancamentosFn({ data: opts ?? {} });
+  return rows as unknown as Lancamento[];
 }
 
 export async function addLancamento(input: Omit<Lancamento, "id" | "created_at" | "recorrente_id" | "aluno_id" | "pagamento_id"> & { recorrente?: boolean }) {
-  const { error } = await supabase.from("financeiro_lancamentos").insert({
-    ...input,
-    recorrente: input.recorrente ?? false,
+  await addLancamentoFn({
+    data: {
+      escopo: input.escopo,
+      tipo: input.tipo,
+      categoria: input.categoria ?? null,
+      descricao: input.descricao,
+      valor: Number(input.valor),
+      data: input.data,
+      recorrente: input.recorrente ?? false,
+    },
   });
-  if (error) throw error;
 }
 
 export async function deleteLancamento(id: string) {
-  const { error } = await supabase.from("financeiro_lancamentos").delete().eq("id", id);
-  if (error) throw error;
+  await deleteLancamentoFn({ data: { id } });
 }
 
 export async function listRecorrentes(escopo?: Escopo): Promise<Recorrente[]> {
-  let q = supabase.from("despesas_recorrentes").select("*").order("dia");
-  if (escopo) q = q.eq("escopo", escopo);
-  const { data, error } = await q;
-  if (error) throw error;
-  return (data ?? []) as Recorrente[];
+  const rows = await listRecorrentesFn({ data: { escopo } });
+  return rows as unknown as Recorrente[];
 }
 
 export async function addRecorrente(input: Omit<Recorrente, "id" | "created_at" | "ultimo_gerado_mes" | "ativo"> & { ativo?: boolean }) {
-  const { error } = await supabase.from("despesas_recorrentes").insert({
-    ...input,
-    ativo: input.ativo ?? true,
+  await addRecorrenteFn({
+    data: {
+      escopo: input.escopo,
+      descricao: input.descricao,
+      categoria: input.categoria ?? null,
+      valor: Number(input.valor),
+      dia: input.dia,
+      ativo: input.ativo ?? true,
+    },
   });
-  if (error) throw error;
 }
 
 export async function deleteRecorrente(id: string) {
-  const { error } = await supabase.from("despesas_recorrentes").delete().eq("id", id);
-  if (error) throw error;
+  await deleteRecorrenteFn({ data: { id } });
 }
 
 export function mesAtual(): string {
@@ -84,30 +93,8 @@ export function mesAtual(): string {
  * ainda não foram geradas. Chamado uma vez na entrada do financeiro.
  */
 export async function gerarRecorrentesDoMes(mes: string = mesAtual()): Promise<number> {
-  const recs = await listRecorrentes();
-  const [y, m] = mes.split("-").map(Number);
-  let criados = 0;
-  for (const r of recs) {
-    if (!r.ativo) continue;
-    if (r.ultimo_gerado_mes === mes) continue;
-    const dia = Math.min(Math.max(r.dia, 1), 28);
-    const data = `${y}-${String(m).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-    const { error } = await supabase.from("financeiro_lancamentos").insert({
-      escopo: r.escopo,
-      tipo: "despesa",
-      categoria: r.categoria,
-      descricao: r.descricao,
-      valor: r.valor,
-      data,
-      recorrente: true,
-      recorrente_id: r.id,
-    });
-    if (!error) {
-      await supabase.from("despesas_recorrentes").update({ ultimo_gerado_mes: mes }).eq("id", r.id);
-      criados++;
-    }
-  }
-  return criados;
+  const res = await gerarRecorrentesDoMesFn({ data: { mes } });
+  return res.criados;
 }
 
 export interface ResumoMes {
