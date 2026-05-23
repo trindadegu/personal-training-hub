@@ -54,38 +54,21 @@ export const updateAdminConfigFn = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     await requireAdminSession();
-    const patch: Record<string, unknown> = {
-      username: data.username,
-      whatsapp: data.whatsapp,
-      updated_at: new Date().toISOString(),
-    };
-    if (data.password && data.password.length > 0) {
-      // Hash via the same pgcrypto extension used by the login verifier.
-      const { data: hashed, error: hashErr } = await supabaseAdmin.rpc("crypt" as never, {
-        password: data.password,
-        salt: null,
-      } as never);
-      // Fallback: do the hash via SQL inside the update statement so we don't
-      // need a separate RPC. Easier: call admin_set_password through SQL.
-      if (hashErr || !hashed) {
-        const { error } = await supabaseAdmin
-          .from("admin_credentials")
-          .update(patch)
-          .eq("id", 1);
-        if (error) throw new Error(error.message);
-        const { error: pwErr } = await supabaseAdmin.rpc("set_admin_password" as never, {
-          _password: data.password,
-        } as never);
-        if (pwErr) throw new Error(pwErr.message);
-        return { ok: true };
-      }
-      patch.password = hashed as unknown as string;
-    }
     const { error } = await supabaseAdmin
       .from("admin_credentials")
-      .update(patch)
+      .update({
+        username: data.username,
+        whatsapp: data.whatsapp,
+        updated_at: new Date().toISOString(),
+      })
       .eq("id", 1);
     if (error) throw new Error(error.message);
+    if (data.password && data.password.length > 0) {
+      const { error: pwErr } = await supabaseAdmin.rpc("set_admin_password" as never, {
+        _password: data.password,
+      } as never);
+      if (pwErr) throw new Error(pwErr.message);
+    }
     return { ok: true };
   });
 
