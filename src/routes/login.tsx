@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ThemeToggle } from "@/components/app/theme-toggle";
 import { listStudents } from "@/lib/api/students";
-import { loginAdmin, loginStudent, getAdminConfig } from "@/lib/api/auth";
+import { loginAdmin, loginStudent, getAdminWhatsapp } from "@/lib/api/auth";
 import { setAdminSession, setStudentSession } from "@/lib/session";
 
 export const Route = createFileRoute("/login")({
@@ -135,7 +135,7 @@ function StudentLoginForm({ onDone }: { onDone: () => void }) {
     queryFn: listStudents,
   });
 
-  const { data: cfg } = useQuery({ queryKey: ["admin-config"], queryFn: getAdminConfig });
+  const { data: adminWpp } = useQuery({ queryKey: ["admin-whatsapp-public"], queryFn: getAdminWhatsapp });
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -157,7 +157,7 @@ function StudentLoginForm({ onDone }: { onDone: () => void }) {
   }
 
   function forgot() {
-    const wpp = cfg?.whatsapp ?? "5585981521490";
+    const wpp = adminWpp ?? "5585981521490";
     const msg = encodeURIComponent("Olá! Esqueci minha senha do app de treinos.");
     window.open(`https://wa.me/${wpp}?text=${msg}`, "_blank");
   }

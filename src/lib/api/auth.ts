@@ -1,36 +1,37 @@
 import { supabase } from "@/integrations/supabase/client";
+import {
+  loginAdminFn,
+  logoutAdminFn,
+  getAdminConfigFn,
+  updateAdminConfigFn,
+  getAdminWhatsappPublicFn,
+} from "./auth.functions";
 
 export async function loginAdmin(username: string, password: string): Promise<boolean> {
-  const { data, error } = await supabase
-    .from("admin_credentials")
-    .select("*")
-    .eq("id", 1)
-    .maybeSingle();
-  if (error) throw error;
-  if (!data) return false;
-  return data.username === username && data.password === password;
+  const res = await loginAdminFn({ data: { username, password } });
+  return res.ok;
 }
 
-export async function getAdminConfig() {
-  const { data, error } = await supabase
-    .from("admin_credentials")
-    .select("*")
-    .eq("id", 1)
-    .maybeSingle();
-  if (error) throw error;
-  return data;
+export async function logoutAdmin(): Promise<void> {
+  await logoutAdminFn();
+}
+
+/** Returns the editable admin fields (no password). Admin-only. */
+export async function getAdminConfig(): Promise<{ username: string; whatsapp: string | null } | null> {
+  return (await getAdminConfigFn()) as { username: string; whatsapp: string | null } | null;
 }
 
 export async function updateAdminConfig(params: {
   username: string;
-  password: string;
+  password?: string;
   whatsapp: string;
-}) {
-  const { error } = await supabase
-    .from("admin_credentials")
-    .update({ ...params, updated_at: new Date().toISOString() })
-    .eq("id", 1);
-  if (error) throw error;
+}): Promise<void> {
+  await updateAdminConfigFn({ data: params });
+}
+
+/** Public helper for the student "forgot password" link. */
+export async function getAdminWhatsapp(): Promise<string | null> {
+  return await getAdminWhatsappPublicFn();
 }
 
 export async function loginStudent(id: string, password: string) {

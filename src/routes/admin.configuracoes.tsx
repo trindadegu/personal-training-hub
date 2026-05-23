@@ -27,7 +27,6 @@ function ConfigPage() {
   useEffect(() => {
     if (cfg) {
       setUsername(cfg.username);
-      setPassword(cfg.password);
       setWhatsapp(cfg.whatsapp ?? "");
     }
   }, [cfg]);
@@ -39,9 +38,14 @@ function ConfigPage() {
   async function save() {
     setSaving(true);
     try {
-      await updateAdminConfig({ username: username.trim(), password, whatsapp: whatsapp.trim() });
+      await updateAdminConfig({
+        username: username.trim(),
+        password: password.length > 0 ? password : undefined,
+        whatsapp: whatsapp.trim(),
+      });
       if (mensagem.trim()) await setConfig("mensagem_cobranca", mensagem);
       toast.success("Configurações salvas!");
+      setPassword("");
       qc.invalidateQueries({ queryKey: ["admin-config"] });
       qc.invalidateQueries({ queryKey: ["cfg-msg"] });
     } catch (err: any) {
@@ -68,13 +72,15 @@ function ConfigPage() {
             <Input value={username} onChange={(e) => setUsername(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label>Senha</Label>
+            <Label>Nova senha</Label>
             <div className="relative">
               <Input
                 type={show ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="pr-10"
+                placeholder="Deixe em branco para manter a atual"
+                autoComplete="new-password"
               />
               <button
                 type="button"

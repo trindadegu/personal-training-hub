@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/app/theme-toggle";
 import { clearAdminSession, getAdminSession } from "@/lib/session";
+import { logoutAdmin } from "@/lib/api/auth";
 import type { AdminSession } from "@/lib/types";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -78,8 +79,9 @@ function AdminLayout() {
                 variant="ghost"
                 size="icon"
                 aria-label="Sair"
-                onClick={() => {
+                onClick={async () => {
                   clearAdminSession();
+                  try { await logoutAdmin(); } catch {}
                   navigate({ to: "/login" });
                 }}
               >

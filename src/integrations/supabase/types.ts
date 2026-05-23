@@ -415,7 +415,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_admin_whatsapp: { Args: never; Returns: string }
+      set_admin_password: { Args: { _password: string }; Returns: undefined }
+      verify_admin_login: {
+        Args: { _password: string; _username: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
