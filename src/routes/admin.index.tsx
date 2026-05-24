@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listStudents } from "@/lib/api/students";
 import { listCheckins } from "@/lib/api/checkins";
-import { supabase } from "@/integrations/supabase/client";
+import { countHistoricoSinceFn } from "@/lib/api/historico.functions";
 import { listPagamentos, gerarMensalidadesDoMes, marcarPago, mesAtual, mesLabel } from "@/lib/api/pagamentos";
 import { listLancamentos, resumo, gerarRecorrentesDoMes, porDia } from "@/lib/api/financeiro";
 import { formatBRL, formatDateBR, getConfig, whatsappLink } from "@/lib/api/config";
@@ -25,12 +25,9 @@ export const Route = createFileRoute("/admin/")({
 
 async function countHistorico() {
   const start = new Date(); start.setDate(1); start.setHours(0,0,0,0);
-  const { count, error } = await supabase
-    .from("treino_historico")
-    .select("*", { count: "exact", head: true })
-    .gte("data", start.toISOString().slice(0, 10));
-  if (error) throw error;
-  return count ?? 0;
+  return await countHistoricoSinceFn({
+    data: { fromISO: start.toISOString().slice(0, 10) },
+  });
 }
 
 function rangeMonth(mes: string) {
