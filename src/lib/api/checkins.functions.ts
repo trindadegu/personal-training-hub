@@ -15,10 +15,20 @@ const CheckinSchema = z.object({
   lng_gym: z.number().min(-180).max(180),
 });
 
-/** Public: students register their own check-in (no auth — same as before). */
+/** Public: students register their own check-in. Aluno existence is validated server-side. */
 export const createCheckinFn = createServerFn({ method: "POST" })
   .inputValidator((input) => CheckinSchema.parse(input))
   .handler(async ({ data }) => {
+    const { data: aluno } = await supabaseAdmin
+      .from("alunos")
+      .select("id, nome")
+      .eq("id", data.aluno_id)
+      .maybeSingle();
+    if (!aluno) throw new Error("Aluno não encontrado");
+    if (aluno.nome !== data.aluno_nome) {
+      // Trust DB name, prevent spoofing
+      data = { ...data, aluno_nome: aluno.nome };
+    }
     const { data: row, error } = await supabaseAdmin
       .from("checkins")
       .insert(data)
