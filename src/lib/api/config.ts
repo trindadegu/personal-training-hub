@@ -1,20 +1,11 @@
-import { supabase } from "@/integrations/supabase/client";
+import { getConfigFn, setConfigFn } from "./config.functions";
 
 export async function getConfig(chave: string): Promise<string | null> {
-  const { data, error } = await supabase
-    .from("configuracoes")
-    .select("valor")
-    .eq("chave", chave)
-    .maybeSingle();
-  if (error) throw error;
-  return data?.valor ?? null;
+  return (await getConfigFn({ data: { chave } })) ?? null;
 }
 
 export async function setConfig(chave: string, valor: string): Promise<void> {
-  const { error } = await supabase
-    .from("configuracoes")
-    .upsert({ chave, valor, updated_at: new Date().toISOString() }, { onConflict: "chave" });
-  if (error) throw error;
+  await setConfigFn({ data: { chave, valor } });
 }
 
 export function onlyDigits(s: string | null | undefined): string {
