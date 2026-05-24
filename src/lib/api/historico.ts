@@ -1,5 +1,9 @@
-import { supabase } from "@/integrations/supabase/client";
 import type { DiaTreino, HistoricoEntry } from "../types";
+import {
+  registerCompletedSessionFn,
+  listHistoricoFn,
+  listHistoricoAllFn,
+} from "./historico.functions";
 
 function todayDateOnly(): string {
   const d = new Date();
@@ -23,20 +27,17 @@ export async function registerCompletedSession(params: {
     .map((i) => dia.exercises[i])
     .filter(Boolean)
     .map((e) => ({ name: e.name, series: e.series, reps: e.reps }));
-
-  const { error } = await supabase.from("treino_historico").upsert(
-    {
-      aluno_id: alunoId,
+  await registerCompletedSessionFn({
+    data: {
+      alunoId,
       data: todayDateOnly(),
-      dia_semana: diaSemana,
+      diaSemana,
       foco: dia.focus || null,
-      exercicios_feitos: exFeitos as any,
-      total_exercicios: dia.exercises.length,
-      checkin_id: checkinId ?? null,
+      exerciciosFeitos: exFeitos as any,
+      totalExercicios: dia.exercises.length,
+      checkinId: checkinId ?? null,
     },
-    { onConflict: "aluno_id,data,dia_semana" }
-  );
-  if (error) throw error;
+  });
 }
 
 export async function listHistorico(
@@ -44,24 +45,9 @@ export async function listHistorico(
   fromISO: string,
   toISO: string
 ): Promise<HistoricoEntry[]> {
-  const { data, error } = await supabase
-    .from("treino_historico")
-    .select("*")
-    .eq("aluno_id", alunoId)
-    .gte("data", fromISO)
-    .lte("data", toISO)
-    .order("data", { ascending: false });
-  if (error) throw error;
-  return (data ?? []) as HistoricoEntry[];
+  return ((await listHistoricoFn({ data: { alunoId, fromISO, toISO } })) ?? []) as HistoricoEntry[];
 }
 
 export async function listHistoricoAll(alunoId: string): Promise<HistoricoEntry[]> {
-  const { data, error } = await supabase
-    .from("treino_historico")
-    .select("*")
-    .eq("aluno_id", alunoId)
-    .order("data", { ascending: false })
-    .limit(500);
-  if (error) throw error;
-  return (data ?? []) as HistoricoEntry[];
+  return ((await listHistoricoAllFn({ data: { alunoId } })) ?? []) as HistoricoEntry[];
 }
