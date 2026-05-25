@@ -1,3 +1,4 @@
+import { dbError } from "@/lib/api/_errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -13,7 +14,7 @@ export const getConfigFn = createServerFn({ method: "POST" })
       .select("valor")
       .eq("chave", data.chave)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return row?.valor ?? null;
   });
 
@@ -29,6 +30,6 @@ export const setConfigFn = createServerFn({ method: "POST" })
         { chave: data.chave, valor: data.valor, updated_at: new Date().toISOString() },
         { onConflict: "chave" },
       );
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });

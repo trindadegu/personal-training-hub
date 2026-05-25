@@ -1,3 +1,4 @@
+import { dbError } from "@/lib/api/_errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -15,7 +16,7 @@ export const loginAdminFn = createServerFn({ method: "POST" })
       _username: data.username,
       _password: data.password,
     });
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     if (!ok) return { ok: false as const };
     const session = await getAdminSession();
     await session.update({ username: data.username, loggedInAt: Date.now() });
@@ -40,7 +41,7 @@ export const getAdminConfigFn = createServerFn({ method: "GET" }).handler(async 
     .select("username, whatsapp")
     .eq("id", 1)
     .maybeSingle();
-  if (error) throw new Error(error.message);
+  if (error) throw dbError(error);
   return data;
 });
 
@@ -62,7 +63,7 @@ export const updateAdminConfigFn = createServerFn({ method: "POST" })
         updated_at: new Date().toISOString(),
       })
       .eq("id", 1);
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     if (data.password && data.password.length > 0) {
       const { error: pwErr } = await supabaseAdmin.rpc("set_admin_password", {
         _password: data.password,
@@ -74,6 +75,6 @@ export const updateAdminConfigFn = createServerFn({ method: "POST" })
 
 export const getAdminWhatsappPublicFn = createServerFn({ method: "GET" }).handler(async () => {
   const { data, error } = await supabaseAdmin.rpc("get_admin_whatsapp");
-  if (error) throw new Error(error.message);
+  if (error) throw dbError(error);
   return (data as string | null) ?? null;
 });

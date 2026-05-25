@@ -1,3 +1,4 @@
+import { dbError } from "@/lib/api/_errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -13,7 +14,7 @@ export const listNotasFn = createServerFn({ method: "POST" })
       .eq("aluno_id", data.alunoId)
       .order("data", { ascending: false })
       .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return rows ?? [];
   });
 
@@ -32,7 +33,7 @@ export const createNotaFn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await requireAdminSession();
     const { error } = await supabaseAdmin.from("aluno_notas").insert(data);
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });
 
@@ -41,6 +42,6 @@ export const deleteNotaFn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await requireAdminSession();
     const { error } = await supabaseAdmin.from("aluno_notas").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });

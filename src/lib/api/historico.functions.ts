@@ -1,3 +1,4 @@
+import { dbError } from "@/lib/api/_errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -43,7 +44,7 @@ export const registerCompletedSessionFn = createServerFn({ method: "POST" })
       },
       { onConflict: "aluno_id,data,dia_semana" },
     );
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });
 
@@ -65,7 +66,7 @@ export const listHistoricoFn = createServerFn({ method: "POST" })
       .gte("data", data.fromISO)
       .lte("data", data.toISO)
       .order("data", { ascending: false });
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return rows ?? [];
   });
 
@@ -78,7 +79,7 @@ export const listHistoricoAllFn = createServerFn({ method: "POST" })
       .eq("aluno_id", data.alunoId)
       .order("data", { ascending: false })
       .limit(500);
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return rows ?? [];
   });
 
@@ -90,6 +91,6 @@ export const countHistoricoSinceFn = createServerFn({ method: "POST" })
       .from("treino_historico")
       .select("*", { count: "exact", head: true })
       .gte("data", data.fromISO);
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return count ?? 0;
   });

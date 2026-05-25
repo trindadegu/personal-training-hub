@@ -1,3 +1,4 @@
+import { dbError } from "@/lib/api/_errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -13,7 +14,7 @@ export const getTrainingFn = createServerFn({ method: "POST" })
       .select("treino")
       .eq("aluno_id", data.alunoId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return row?.treino ?? null;
   });
 
@@ -34,7 +35,7 @@ export const saveTrainingFn = createServerFn({ method: "POST" })
         { aluno_id: data.alunoId, treino: data.treino, updated_at: new Date().toISOString() },
         { onConflict: "aluno_id" },
       );
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });
 
@@ -46,16 +47,27 @@ export const getProgressFn = createServerFn({ method: "POST" })
       .select("progresso")
       .eq("aluno_id", data.alunoId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return row?.progresso ?? {};
   });
+
+const MAX_JSON_BYTES = 50_000;
+const boundedJson = z.any().superRefine((val, ctx) => {
+  try {
+    if (JSON.stringify(val ?? {}).length > MAX_JSON_BYTES) {
+      ctx.addIssue({ code: "custom", message: "Payload too large" });
+    }
+  } catch {
+    ctx.addIssue({ code: "custom", message: "Invalid payload" });
+  }
+});
 
 export const saveProgressFn = createServerFn({ method: "POST" })
   .inputValidator((input) =>
     z
       .object({
         alunoId: z.string().min(1).max(120),
-        progresso: z.any(),
+        progresso: boundedJson,
       })
       .parse(input),
   )
@@ -77,7 +89,7 @@ export const saveProgressFn = createServerFn({ method: "POST" })
         },
         { onConflict: "aluno_id" },
       );
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });
 
@@ -87,7 +99,7 @@ export const getDefaultTrainingFn = createServerFn({ method: "GET" }).handler(as
     .select("treino")
     .eq("id", 1)
     .maybeSingle();
-  if (error) throw new Error(error.message);
+  if (error) throw dbError(error);
   return data?.treino ?? null;
 });
 
@@ -101,6 +113,6 @@ export const saveDefaultTrainingFn = createServerFn({ method: "POST" })
         { id: 1, treino: data.treino, updated_at: new Date().toISOString() },
         { onConflict: "id" },
       );
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });

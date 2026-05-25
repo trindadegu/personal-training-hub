@@ -1,3 +1,4 @@
+import { dbError } from "@/lib/api/_errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -34,7 +35,7 @@ export const createCheckinFn = createServerFn({ method: "POST" })
       .insert(data)
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return row;
   });
 
@@ -52,7 +53,7 @@ export const listCheckinsAdminFn = createServerFn({ method: "POST" })
       .limit(500);
     if (data.alunoId) q = q.eq("aluno_id", data.alunoId);
     const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return rows ?? [];
   });
 
@@ -67,7 +68,7 @@ export const lastCheckinForStudentFn = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return row;
   });
 
@@ -84,6 +85,6 @@ export const checkinTodayFn = createServerFn({ method: "POST" })
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return row;
   });
