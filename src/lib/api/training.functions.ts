@@ -51,12 +51,23 @@ export const getProgressFn = createServerFn({ method: "POST" })
     return row?.progresso ?? {};
   });
 
+const MAX_JSON_BYTES = 50_000;
+const boundedJson = z.any().superRefine((val, ctx) => {
+  try {
+    if (JSON.stringify(val ?? {}).length > MAX_JSON_BYTES) {
+      ctx.addIssue({ code: "custom", message: "Payload too large" });
+    }
+  } catch {
+    ctx.addIssue({ code: "custom", message: "Invalid payload" });
+  }
+});
+
 export const saveProgressFn = createServerFn({ method: "POST" })
   .inputValidator((input) =>
     z
       .object({
         alunoId: z.string().min(1).max(120),
-        progresso: z.any(),
+        progresso: boundedJson,
       })
       .parse(input),
   )
