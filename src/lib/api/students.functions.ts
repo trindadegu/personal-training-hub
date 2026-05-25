@@ -1,3 +1,4 @@
+import { dbError } from "@/lib/api/_errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -20,7 +21,7 @@ const PatchSchema = z
 export const listStudentsAdminFn = createServerFn({ method: "GET" }).handler(async () => {
   await requireAdminSession();
   const { data, error } = await supabaseAdmin.from("alunos").select("*").order("nome");
-  if (error) throw new Error(error.message);
+  if (error) throw dbError(error);
   return data ?? [];
 });
 
@@ -30,7 +31,7 @@ export const listStudentsPublicFn = createServerFn({ method: "GET" }).handler(as
     .from("alunos")
     .select("id, nome")
     .order("nome");
-  if (error) throw new Error(error.message);
+  if (error) throw dbError(error);
   return (data ?? []) as Array<{ id: string; nome: string }>;
 });
 
@@ -43,7 +44,7 @@ export const findStudentAdminFn = createServerFn({ method: "POST" })
       .select("*")
       .eq("id", data.id)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return row;
   });
 
@@ -72,7 +73,7 @@ export const createStudentFn = createServerFn({ method: "POST" })
       })
       .select()
       .single();
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     await supabaseAdmin.from("treinos").insert({ aluno_id: id, treino: {} as any });
     return row;
   });
@@ -87,7 +88,7 @@ export const updateStudentFn = createServerFn({ method: "POST" })
       .from("alunos")
       .update(data.patch as any)
       .eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });
 
@@ -96,7 +97,7 @@ export const deleteStudentFn = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await requireAdminSession();
     const { error } = await supabaseAdmin.from("alunos").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });
 
@@ -109,6 +110,6 @@ export const lookupStudentLoginFn = createServerFn({ method: "POST" })
       .select("id, nome")
       .eq("id", data.id)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return row as { id: string; nome: string } | null;
   });

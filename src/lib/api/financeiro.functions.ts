@@ -1,3 +1,4 @@
+import { dbError } from "@/lib/api/_errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -24,7 +25,7 @@ export const listLancamentosFn = createServerFn({ method: "POST" })
     if (data.from) q = q.gte("data", data.from);
     if (data.to) q = q.lte("data", data.to);
     const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return rows ?? [];
   });
 
@@ -51,7 +52,7 @@ export const addLancamentoFn = createServerFn({ method: "POST" })
       data: data.data,
       recorrente: data.recorrente ?? false,
     });
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });
 
@@ -63,7 +64,7 @@ export const deleteLancamentoFn = createServerFn({ method: "POST" })
       .from("financeiro_lancamentos")
       .delete()
       .eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });
 
@@ -76,7 +77,7 @@ export const listRecorrentesFn = createServerFn({ method: "POST" })
     let q = supabaseAdmin.from("despesas_recorrentes").select("*").order("dia");
     if (data.escopo) q = q.eq("escopo", data.escopo);
     const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return rows ?? [];
   });
 
@@ -101,7 +102,7 @@ export const addRecorrenteFn = createServerFn({ method: "POST" })
       dia: data.dia,
       ativo: data.ativo ?? true,
     });
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });
 
@@ -113,7 +114,7 @@ export const deleteRecorrenteFn = createServerFn({ method: "POST" })
       .from("despesas_recorrentes")
       .delete()
       .eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });
 

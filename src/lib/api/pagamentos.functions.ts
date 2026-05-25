@@ -1,3 +1,4 @@
+import { dbError } from "@/lib/api/_errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
@@ -16,7 +17,7 @@ export const listPagamentosFn = createServerFn({ method: "POST" })
     if (data.alunoId) q = q.eq("aluno_id", data.alunoId);
     if (data.mes) q = q.eq("mes_referencia", data.mes);
     const { data: rows, error } = await q;
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return rows ?? [];
   });
 
@@ -35,7 +36,7 @@ export const upsertPagamentoFn = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin
       .from("pagamentos")
       .upsert(data, { onConflict: "aluno_id,mes_referencia" });
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     return { ok: true };
   });
 
@@ -55,7 +56,7 @@ export const marcarPagoFn = createServerFn({ method: "POST" })
       .from("pagamentos")
       .update({ status: "pago", pago_em: today })
       .eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     const { error: e2 } = await supabaseAdmin.from("financeiro_lancamentos").insert({
       escopo: "negocio",
       tipo: "receita",
@@ -78,7 +79,7 @@ export const marcarPendenteFn = createServerFn({ method: "POST" })
       .from("pagamentos")
       .update({ status: "pendente", pago_em: null })
       .eq("id", data.id);
-    if (error) throw new Error(error.message);
+    if (error) throw dbError(error);
     await supabaseAdmin.from("financeiro_lancamentos").delete().eq("pagamento_id", data.id);
     return { ok: true };
   });
