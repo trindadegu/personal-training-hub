@@ -162,38 +162,47 @@ function AlunosPage() {
               >
                 <Card className="overflow-hidden">
                   <CardContent className="flex items-center justify-between gap-3 p-4">
-                    <Link
-                      to="/admin/aluno/$id"
-                      params={{ id: a.id }}
-                      className="min-w-0 flex-1 hover:opacity-80"
-                    >
-                      <p className="truncate font-display font-semibold">{a.nome}</p>
-                      {a.telefone && (
-                        <p className="truncate text-xs text-muted-foreground">{a.telefone}</p>
-                      )}
-                      <p className="mt-0.5 text-xs text-muted-foreground">
-                        {a.valor_mensalidade ? formatBRL(Number(a.valor_mensalidade)) : "Sem mensalidade"}
-                        {a.dia_vencimento ? ` · vence dia ${a.dia_vencimento}` : ""}
-                      </p>
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        to="/admin/aluno/$id"
+                        params={{ id: a.id }}
+                        className="block hover:opacity-80"
+                      >
+                        <p className="truncate font-display font-semibold">{a.nome}</p>
+                        {a.telefone && (
+                          <p className="truncate text-xs text-muted-foreground">{a.telefone}</p>
+                        )}
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {a.valor_mensalidade ? formatBRL(Number(a.valor_mensalidade)) : "Sem mensalidade"}
+                          {a.dia_vencimento ? ` · vence dia ${a.dia_vencimento}` : ""}
+                        </p>
+                      </Link>
                       <div className="mt-2 flex items-center gap-2">
                         <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 font-mono text-[11px]">
                           <KeyRound className="h-3 w-3" /> {senha}
                         </span>
                         <button
-                          className="text-[11px] text-muted-foreground hover:text-foreground"
+                          type="button"
+                          className="rounded p-1 text-muted-foreground hover:text-foreground"
                           onClick={(e) => {
                             e.preventDefault();
+                            e.stopPropagation();
                             navigator.clipboard?.writeText(senha);
                             toast.success("Senha copiada");
                           }}
+                          aria-label="Copiar senha"
                         >
                           <Copy className="h-3 w-3" />
                         </button>
-                        <span className="ml-1 inline-flex items-center gap-1 text-[11px] text-primary">
+                        <Link
+                          to="/admin/aluno/$id"
+                          params={{ id: a.id }}
+                          className="ml-1 inline-flex items-center gap-1 text-[11px] text-primary hover:underline"
+                        >
                           Abrir prontuário <ExternalLink className="h-3 w-3" />
-                        </span>
+                        </Link>
                       </div>
-                    </Link>
+                    </div>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="icon" aria-label="Remover">
