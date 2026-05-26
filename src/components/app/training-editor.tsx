@@ -7,6 +7,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DIAS, DIA_LABEL, type DiaSemana, type TreinoSemana, emptyTraining } from "@/lib/types";
 
+function normalize(v: TreinoSemana | null | undefined): TreinoSemana {
+  const base = emptyTraining();
+  if (!v || typeof v !== "object") return base;
+  for (const d of DIAS) {
+    const day = (v as any)[d];
+    if (day && typeof day === "object") {
+      base[d] = {
+        focus: typeof day.focus === "string" ? day.focus : "",
+        exercises: Array.isArray(day.exercises) ? day.exercises : [],
+      };
+    }
+  }
+  return base;
+}
+
 interface Props {
   value: TreinoSemana;
   onChange: (v: TreinoSemana) => void;
@@ -14,7 +29,7 @@ interface Props {
 
 export function TrainingEditor({ value, onChange }: Props) {
   const [day, setDay] = useState<DiaSemana>("segunda");
-  const safe = value ?? emptyTraining();
+  const safe = normalize(value);
 
   function updateDay(d: DiaSemana, partial: Partial<TreinoSemana[DiaSemana]>) {
     onChange({ ...safe, [d]: { ...safe[d], ...partial } });
