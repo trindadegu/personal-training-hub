@@ -34,6 +34,16 @@ function mesInputDefault() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
+const MESES_PT = [
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+];
+function anosDisponiveis() {
+  const atual = new Date().getFullYear();
+  const arr: number[] = [];
+  for (let y = atual - 5; y <= atual + 1; y++) arr.push(y);
+  return arr;
+}
 function rangeOfMonth(mes: string) {
   const [y, m] = mes.split("-").map(Number);
   const from = `${y}-${String(m).padStart(2, "0")}-01`;
@@ -46,6 +56,12 @@ export function FinanceiroPanel({ escopo, titulo }: { escopo: Escopo; titulo: st
   const qc = useQueryClient();
   const [mes, setMes] = useState(mesInputDefault());
   const { from, to } = rangeOfMonth(mes);
+  const [anoStr, mesStr] = mes.split("-");
+  const ano = Number(anoStr);
+  const mesNum = Number(mesStr);
+  function setMesAno(novoMes: number, novoAno: number) {
+    setMes(`${novoAno}-${String(novoMes).padStart(2, "0")}`);
+  }
 
   useEffect(() => {
     // Gera recorrentes automaticamente ao entrar
@@ -89,10 +105,28 @@ export function FinanceiroPanel({ escopo, titulo }: { escopo: Escopo; titulo: st
           <h1 className="font-display text-3xl font-bold tracking-tight">{titulo}</h1>
           <p className="text-sm text-muted-foreground">Receitas, despesas e gráfico do mês.</p>
         </div>
-        <div className="flex items-end gap-2">
+        <div className="flex flex-wrap items-end gap-2">
           <div className="space-y-1">
             <Label className="text-xs">Mês</Label>
-            <Input type="month" value={mes} onChange={(e) => setMes(e.target.value)} className="w-[180px]" />
+            <Select value={String(mesNum)} onValueChange={(v) => setMesAno(Number(v), ano)}>
+              <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {MESES_PT.map((nome, i) => (
+                  <SelectItem key={i} value={String(i + 1)}>{nome}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Ano</Label>
+            <Select value={String(ano)} onValueChange={(v) => setMesAno(mesNum, Number(v))}>
+              <SelectTrigger className="w-[110px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {anosDisponiveis().map((y) => (
+                  <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <Button variant="outline" onClick={exportPDF}>
             <Download className="h-4 w-4" /> PDF
