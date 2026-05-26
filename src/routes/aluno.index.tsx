@@ -314,6 +314,11 @@ function AlunoHomePage() {
         <div className="mb-3 flex items-center justify-between">
           <h3 className="font-display text-lg font-semibold">
             Treino de {DIA_LABEL[selected]}
+            {dia?.focus ? (
+              <span className="ml-2 font-sans text-sm font-normal text-muted-foreground">
+                — {dia.focus}
+              </span>
+            ) : null}
           </h3>
           {pct === 100 && totalEx > 0 && (
             <Badge className="gap-1 bg-emerald-500 text-white hover:bg-emerald-500">
