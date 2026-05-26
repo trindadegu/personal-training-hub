@@ -1,17 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { Save, Sparkles, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Save, Sparkles, Loader2, Check, ChevronsUpDown } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList,
+} from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 import { TrainingEditor } from "@/components/app/training-editor";
 import {
   getDefaultTraining,
@@ -31,6 +29,11 @@ function TreinosPage() {
   const [alunoId, setAlunoId] = useState<string>("");
   const [treino, setTreino] = useState<TreinoSemana>(emptyTraining());
   const [saving, setSaving] = useState(false);
+  const [open, setOpen] = useState(false);
+  const alunoSelecionado = useMemo(
+    () => alunos.find((a) => a.id === alunoId),
+    [alunos, alunoId],
+  );
 
   const { data: loaded, isFetching } = useQuery({
     queryKey: ["treino", alunoId],
@@ -78,18 +81,42 @@ function TreinosPage() {
           <div className="min-w-0 flex-1">
             <CardTitle className="font-display text-base">Aluno</CardTitle>
             <div className="mt-2">
-              <Select value={alunoId} onValueChange={setAlunoId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione um aluno" />
-                </SelectTrigger>
-                <SelectContent>
-                  {alunos.map((a) => (
-                    <SelectItem key={a.id} value={a.id}>
-                      {a.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="w-full justify-between"
+                  >
+                    {alunoSelecionado ? alunoSelecionado.nome : "Selecione ou digite o nome do aluno"}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Digite o nome..." />
+                    <CommandList>
+                      <CommandEmpty>Nenhum aluno encontrado.</CommandEmpty>
+                      <CommandGroup>
+                        {alunos.map((a) => (
+                          <CommandItem
+                            key={a.id}
+                            value={a.nome}
+                            onSelect={() => {
+                              setAlunoId(a.id);
+                              setOpen(false);
+                            }}
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", alunoId === a.id ? "opacity-100" : "opacity-0")} />
+                            {a.nome}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </CardHeader>
