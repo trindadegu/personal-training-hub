@@ -103,8 +103,20 @@ export const deleteStudentFn = createServerFn({ method: "POST" })
 
 /** Public: used by student login. Returns minimal info if the id exists. */
 export const lookupStudentLoginFn = createServerFn({ method: "POST" })
-  .inputValidator((input) => z.object({ id: z.string().min(1).max(120) }).parse(input))
+  .inputValidator((input) =>
+    z
+      .object({
+        id: z.string().min(1).max(120),
+        password: z.string().min(1).max(120),
+      })
+      .parse(input),
+  )
   .handler(async ({ data }) => {
+    // Server-side password verification. The student "password" is the last
+    // 6 characters of their id. Verifying here prevents the client-side
+    // check from being bypassed by calling this endpoint directly.
+    const expected = data.id.slice(-6);
+    if (data.password !== expected) return null;
     const { data: row, error } = await supabaseAdmin
       .from("alunos")
       .select("id, nome")
