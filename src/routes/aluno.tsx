@@ -2,7 +2,7 @@ import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tansta
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/app/theme-toggle";
-import { clearStudentSession, getStudentSession } from "@/lib/session";
+import { clearStudentSession } from "@/lib/session";
 import type { StudentSession } from "@/lib/types";
 import { getStudentMe, logoutStudent } from "@/lib/api/auth";
 import { CalendarDays, Dumbbell, LogOut } from "lucide-react";
