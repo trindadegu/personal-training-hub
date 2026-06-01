@@ -35,7 +35,7 @@ export async function getAdminWhatsapp(): Promise<string | null> {
 }
 
 export async function loginStudent(id: string, password: string) {
-  if (id.slice(-6) !== password) return null;
-  const row = await lookupStudentLoginFn({ data: { id } });
+  // Password verification is enforced server-side inside lookupStudentLoginFn.
+  const row = await lookupStudentLoginFn({ data: { id, password } });
   return row;
 }
