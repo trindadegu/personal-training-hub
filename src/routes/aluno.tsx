@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/app/theme-toggle";
 import { clearStudentSession, getStudentSession } from "@/lib/session";
 import type { StudentSession } from "@/lib/types";
+import { getStudentMe, logoutStudent } from "@/lib/api/auth";
 import { CalendarDays, Dumbbell, LogOut } from "lucide-react";
 
 export const Route = createFileRoute("/aluno")({
@@ -17,10 +18,31 @@ function AlunoLayout() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const s = getStudentSession();
-    setSession(s);
-    setReady(true);
-    if (!s) navigate({ to: "/login" });
+    let cancelled = false;
+    (async () => {
+      // Server-verified check via httpOnly session cookie. The localStorage
+      // entry is only a UX hint (e.g. greeting name) and cannot be trusted.
+      try {
+        const me = await getStudentMe();
+        if (cancelled) return;
+        if (!me) {
+          clearStudentSession();
+          setReady(true);
+          navigate({ to: "/login" });
+          return;
+        }
+        setSession({ id: me.id, name: me.nome, expiresAt: Date.now() + 1000 * 60 * 60 * 24 });
+        setReady(true);
+      } catch {
+        if (cancelled) return;
+        clearStudentSession();
+        setReady(true);
+        navigate({ to: "/login" });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [navigate]);
 
   if (!ready || !session) return null;
@@ -48,7 +70,12 @@ function AlunoLayout() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => {
+              onClick={async () => {
+                try {
+                  await logoutStudent();
+                } catch {
+                  /* ignore */
+                }
                 clearStudentSession();
                 navigate({ to: "/login" });
               }}
