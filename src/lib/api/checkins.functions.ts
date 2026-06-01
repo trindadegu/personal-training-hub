@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireAdminSession } from "@/lib/admin-auth.server";
+import { requireStudentSessionFor } from "@/lib/student-auth.server";
 
 const CheckinSchema = z.object({
   aluno_id: z.string().min(1).max(120),
@@ -20,6 +21,7 @@ const CheckinSchema = z.object({
 export const createCheckinFn = createServerFn({ method: "POST" })
   .inputValidator((input) => CheckinSchema.parse(input))
   .handler(async ({ data }) => {
+    await requireStudentSessionFor(data.aluno_id);
     const { data: aluno } = await supabaseAdmin
       .from("alunos")
       .select("id, nome")
