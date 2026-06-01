@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireAdminSession } from "@/lib/admin-auth.server";
+import { requireStudentSessionFor } from "@/lib/student-auth.server";
 
 const ExSchema = z.object({
   name: z.string().min(1).max(300),
@@ -25,6 +26,7 @@ export const registerCompletedSessionFn = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }) => {
+    await requireStudentSessionFor(data.alunoId);
     const { data: aluno } = await supabaseAdmin
       .from("alunos")
       .select("id")

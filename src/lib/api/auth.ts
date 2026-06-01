@@ -5,7 +5,11 @@ import {
   updateAdminConfigFn,
   getAdminWhatsappPublicFn,
 } from "./auth.functions";
-import { lookupStudentLoginFn } from "./students.functions";
+import {
+  lookupStudentLoginFn,
+  getStudentMeFn,
+  logoutStudentFn,
+} from "./students.functions";
 
 export async function loginAdmin(username: string, password: string): Promise<boolean> {
   const res = await loginAdminFn({ data: { username, password } });
@@ -38,4 +42,13 @@ export async function loginStudent(id: string, password: string) {
   // Password verification is enforced server-side inside lookupStudentLoginFn.
   const row = await lookupStudentLoginFn({ data: { id, password } });
   return row;
+}
+
+/** Server-verified currently signed-in student (from httpOnly cookie). */
+export async function getStudentMe(): Promise<{ id: string; nome: string } | null> {
+  return (await getStudentMeFn()) as { id: string; nome: string } | null;
+}
+
+export async function logoutStudent(): Promise<void> {
+  await logoutStudentFn();
 }

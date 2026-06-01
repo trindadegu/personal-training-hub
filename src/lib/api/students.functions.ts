@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireAdminSession } from "@/lib/admin-auth.server";
+import { getStudentSession } from "@/lib/student-auth.server";
 
 const PatchSchema = z
   .object({
@@ -123,5 +124,30 @@ export const lookupStudentLoginFn = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw dbError(error);
-    return row as { id: string; nome: string } | null;
+    const aluno = row as { id: string; nome: string } | null;
+    if (aluno) {
+      // Issue a server-side session cookie so subsequent student-facing
+      // writes can be authenticated server-side.
+      const session = await getStudentSession();
+      await session.update({
+        alunoId: aluno.id,
+        nome: aluno.nome,
+        loggedInAt: Date.now(),
+      });
+    }
+    return aluno;
   });
+
+/** Public: returns the currently signed-in student (server-verified). */
+export const getStudentMeFn = createServerFn({ method: "GET" }).handler(async () => {
+  const session = await getStudentSession();
+  if (!session.data?.alunoId) return null;
+  return { id: session.data.alunoId, nome: session.data.nome ?? "" };
+});
+
+/** Public: clears the student session cookie. */
+export const logoutStudentFn = createServerFn({ method: "POST" }).handler(async () => {
+  const session = await getStudentSession();
+  await session.clear();
+  return { ok: true };
+});

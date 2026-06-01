@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireAdminSession } from "@/lib/admin-auth.server";
+import { requireStudentSessionFor } from "@/lib/student-auth.server";
 
 const AlunoIdSchema = z.object({ alunoId: z.string().min(1).max(120) });
 
@@ -72,6 +73,8 @@ export const saveProgressFn = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }) => {
+    // Only the signed-in student can write their own progress.
+    await requireStudentSessionFor(data.alunoId);
     // Validate the aluno exists to prevent garbage rows
     const { data: aluno } = await supabaseAdmin
       .from("alunos")
