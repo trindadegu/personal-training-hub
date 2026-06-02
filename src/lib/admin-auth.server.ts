@@ -11,7 +11,7 @@ interface AdminSessionData {
 function sessionPassword(): string {
   // Derived from the service role key so we don't need an extra secret.
   // 32+ bytes are required by useSession's underlying iron-session.
-  const base = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+  const base = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9obmx3aHByeHpham1zcndpc3ZnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ1NTk4NiwiZXhwIjoyMDk1MDMxOTg2fQ.jIR8EbXlHv9SWxtBmLgICXjcqFimWmQhCmlyLjF53M4";
   return `atlantida-admin:${base}`.padEnd(48, "0");
 }
 
