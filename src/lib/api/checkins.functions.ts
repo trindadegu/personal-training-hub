@@ -4,6 +4,7 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireAdminSession } from "@/lib/admin-auth.server";
 import { requireStudentSessionFor } from "@/lib/student-auth.server";
+import { haversineMeters } from "@/lib/api/academias.functions";
 
 const CheckinSchema = z.object({
   aluno_id: z.string().min(1).max(120),
@@ -32,6 +33,45 @@ export const createCheckinFn = createServerFn({ method: "POST" })
       // Trust DB name, prevent spoofing
       data = { ...data, aluno_nome: aluno.nome };
     }
+
+    // Anti-fraude: validar que o aluno está MESMO dentro do raio de uma
+    // academia parceira cadastrada. Se nenhuma academia tiver sido cadastrada
+    // ainda, permite (modo "abertura"). Quando houver academias, exige que o
+    // GPS esteja dentro do raio configurado.
+    const { data: academias, error: eAc } = await supabaseAdmin
+      .from("academias")
+      .select("id, nome, lat, lng, raio_metros, ativo")
+      .eq("ativo", true);
+    if (eAc) throw dbError(eAc);
+    if (academias && academias.length > 0) {
+      let dentro = false;
+      for (const ac of academias) {
+        const dist = haversineMeters(data.lat_aluno, data.lng_aluno, ac.lat, ac.lng);
+        if (dist <= ac.raio_metros) {
+          dentro = true;
+          break;
+        }
+      }
+      if (!dentro) {
+        throw new Error(
+          "Você precisa estar dentro do raio de uma academia parceira para fazer check-in.",
+        );
+      }
+    }
+
+    // 1 check-in por dia
+    const startDay = new Date();
+    startDay.setHours(0, 0, 0, 0);
+    const { data: jaHoje } = await supabaseAdmin
+      .from("checkins")
+      .select("id")
+      .eq("aluno_id", data.aluno_id)
+      .gte("created_at", startDay.toISOString())
+      .limit(1);
+    if (jaHoje && jaHoje.length > 0) {
+      throw new Error("Você já fez check-in hoje.");
+    }
+
     const { data: row, error } = await supabaseAdmin
       .from("checkins")
       .insert(data)

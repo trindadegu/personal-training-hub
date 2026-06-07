@@ -36,7 +36,12 @@ export async function findStudent(id: string): Promise<Aluno | null> {
 
 export async function createStudent(
   nome: string,
-  opts: { telefone?: string; valor_mensalidade?: number; dia_vencimento?: number } = {}
+  opts: {
+    telefone?: string;
+    valor_mensalidade?: number;
+    dia_vencimento?: number;
+    plano_id?: string | null;
+  } = {}
 ): Promise<Aluno> {
   const row = await createStudentFn({
     data: {
@@ -44,6 +49,7 @@ export async function createStudent(
       telefone: opts.telefone ?? null,
       valor_mensalidade: opts.valor_mensalidade,
       dia_vencimento: opts.dia_vencimento,
+      plano_id: opts.plano_id ?? null,
     },
   });
   return row as Aluno;

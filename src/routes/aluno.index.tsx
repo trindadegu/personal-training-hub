@@ -37,6 +37,7 @@ import {
   lastCheckinForStudent,
 } from "@/lib/api/checkins";
 import { registerCompletedSession } from "@/lib/api/historico";
+import { statsAluno } from "@/lib/api/frequencia";
 import {
   fetchNearbyGyms,
   formatDistance,
@@ -87,6 +88,11 @@ function AlunoHomePage() {
   const todayCheckinQ = useQuery({
     queryKey: ["today-checkin", alunoId],
     queryFn: () => checkinToday(alunoId),
+    enabled: !!alunoId,
+  });
+  const statsQ = useQuery({
+    queryKey: ["stats-aluno", alunoId],
+    queryFn: () => statsAluno(alunoId),
     enabled: !!alunoId,
   });
 
@@ -244,6 +250,41 @@ function AlunoHomePage() {
           )}
         </div>
       </section>
+
+      {/* Frequency goal card */}
+      {statsQ.data && (
+        <section className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-sm)]">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-display text-lg font-semibold">Sua frequência</h3>
+              <p className="text-xs text-muted-foreground">Meta semanal de treinos</p>
+            </div>
+            <div className="flex items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-600">
+              <Flame className="h-3.5 w-3.5" /> {statsQ.data.streak} dias seguidos
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="font-display text-3xl font-bold">
+              {statsQ.data.semana}
+              <span className="text-sm font-normal text-muted-foreground">
+                {" "}/ {statsQ.data.meta_semanal}
+              </span>
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {statsQ.data.mes} treinos no mês (meta {statsQ.data.meta_mensal})
+            </span>
+          </div>
+          <Progress
+            value={Math.min(
+              100,
+              statsQ.data.meta_semanal === 0
+                ? 0
+                : (statsQ.data.semana / statsQ.data.meta_semanal) * 100,
+            )}
+            className="mt-3 h-2"
+          />
+        </section>
+      )}
 
       {/* Day picker */}
       <section>
