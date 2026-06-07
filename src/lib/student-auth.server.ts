@@ -14,6 +14,8 @@ function sessionPassword(): string {
   return `atlantida-student:${base}`.padEnd(48, "0");
 }
 
+const isProd = process.env.NODE_ENV === "production";
+
 const SESSION_CONFIG = {
   get password() {
     return sessionPassword();
@@ -22,8 +24,8 @@ const SESSION_CONFIG = {
   maxAge: 60 * 60 * 24 * 30, // 30 days
   cookie: {
     httpOnly: true,
-    secure: true,
-    sameSite: "lax" as const,
+    secure: isProd,
+    sameSite: (isProd ? "none" : "lax") as "none" | "lax",
     path: "/",
   },
 };
