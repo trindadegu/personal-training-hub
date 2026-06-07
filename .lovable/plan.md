@@ -1,41 +1,41 @@
-## Plano
+## Problema
 
-### 1. Indicador de carregamento global (barra no topo)
+Você substituiu os dois `SESSION_CONFIG` mas o do aluno ficou sem o campo `sameSite`, e ambos continuam com `secure: true` fixo — que era justamente a causa do bug de login em `http://` (localhost com IP da rede, `npm run dev` aberto em outro PC). Por isso aparecem erros de TypeScript e o login continua quebrado.
 
-Implementar uma barra de progresso fina e fixa no topo (estilo YouTube/NProgress) que aparece sempre que houver:
-- Navegação entre rotas do TanStack Router (`router.state.isLoading` / `isTransitioning`)
-- Loaders ou serverFns pendentes
-- Mutations do TanStack Query em andamento
+## Correção proposta
 
-**Implementação:**
-- Criar `src/components/app/route-loading-bar.tsx`: barra fina (2px) fixa no topo, cor `--primary`, com animação de progresso indeterminada (translateX + scaleX) usando CSS. Mostra após ~80ms de delay (evita flash em navegações instantâneas) e some suavemente ao terminar.
-- Usar `useRouterState({ select: (s) => s.isLoading || s.isTransitioning })` do `@tanstack/react-router` para detectar navegação pendente.
-- Usar `useIsFetching()` / `useIsMutating()` do `@tanstack/react-query` para cobrir refetches e mutations.
-- Combinar os sinais: bar visível se qualquer um estiver ativo.
-- Montar globalmente em `src/routes/__root.tsx` dentro do `RootComponent` (fica acima de qualquer Outlet).
-- Token de cor via design system existente (`--primary`, glow). Sem libs externas.
+Tornar `secure` e `sameSite` dependentes do ambiente, em **dois arquivos**:
 
-### 2. SQL para o projeto Supabase `ohnlwhprxzajmsrwisvg`
+### 1. `src/lib/admin-auth.server.ts`
+```ts
+const isProd = process.env.NODE_ENV === "production";
 
-Não consigo trocar a conexão de banco do app (o Lovable Cloud está fixado em `nhtnfsldvfxktkqtnsjr`). O que vou entregar: um arquivo SQL único com **todo o schema atual** pronto para colar no SQL Editor do projeto novo.
+const SESSION_CONFIG = {
+  get password() { return sessionPassword(); },
+  name: "atlantida_admin",
+  maxAge: 60 * 60 * 24 * 7,
+  cookie: {
+    httpOnly: true,
+    secure: isProd,                              // false em dev (http) → cookie salva
+    sameSite: (isProd ? "none" : "lax") as "none" | "lax", // "none" em prod → funciona em iframe/preview
+    path: "/",
+  },
+};
+```
 
-Conteúdo do arquivo `/mnt/documents/schema-atlantida.sql`:
-- `CREATE TABLE` de todas as 12 tabelas com os tipos e defaults atuais
-- Chaves primárias (`id`) e restrições de unicidade implícitas
-- `ALTER TABLE ... ENABLE ROW LEVEL SECURITY` em cada tabela
-- Políticas RLS atuais (`public access` permissiva — mesmo modelo do projeto atual). Inclui um comentário avisando que essas políticas são abertas e ideais apenas para o modelo single-tenant atual; se quiser endurecer depois, sinaliza.
-- Entrega como `<presentation-artifact>` para download direto.
+### 2. `src/lib/student-auth.server.ts`
+Mesma mudança, mantendo `name: "atlantida_student"` e `maxAge` de 30 dias. **Recolocar `sameSite`** que você removeu.
 
-### Detalhes técnicos
+## Por que isso resolve
 
-- A barra usa apenas CSS (`@keyframes`) — sem dependência nova.
-- A barra fica em `position: fixed; top: 0; left: 0; right: 0; z-index: 9999` para sobrepor headers.
-- Acessibilidade: `role="progressbar"` + `aria-label="Carregando"`.
-- Não altera nenhuma rota nem lógica de negócio; só adiciona o componente e o monta no root.
-- O SQL é puramente um artefato exportado — não modifica o banco atual.
+- **Em produção** (`acessoriaatlantida.lovable.app`, HTTPS): `secure: true` + `sameSite: "none"` → cookie é aceito mesmo dentro do preview do Lovable e em iframes.
+- **Em desenvolvimento** (`npm run dev`, HTTP via IP da rede): `secure: false` + `sameSite: "lax"` → navegador salva o cookie em conexões `http://`, então o outro PC consegue logar.
+- O `as "none" | "lax"` resolve o erro de TypeScript do tipo do `sameSite`.
 
-### Arquivos afetados
+## Verificação após aplicar
 
-- **Novo**: `src/components/app/route-loading-bar.tsx`
-- **Editado**: `src/routes/__root.tsx` (apenas import + uma linha de JSX)
-- **Artefato**: `/mnt/documents/schema-atlantida.sql`
+1. Em produção, abrir `https://acessoriaatlantida.lovable.app/login` e logar como admin e como aluno.
+2. Em dev, rodar `npm run dev` e pedir para o outro PC abrir pelo IP da rede e logar.
+3. Confirmar que nenhum erro de TypeScript aparece nos dois arquivos.
+
+Posso aplicar?
