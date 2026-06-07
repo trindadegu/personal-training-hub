@@ -1,10 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Dumbbell, MapPin, LineChart, ArrowRight } from "lucide-react";
+import { Dumbbell, MapPin, LineChart, ArrowRight, Check } from "lucide-react";
 import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/app/theme-toggle";
 import { getAdminSession, getStudentSession } from "@/lib/session";
+import { listPlanosPublic } from "@/lib/api/planos";
+import { formatBRL } from "@/lib/api/config";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -12,6 +15,10 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const navigate = useNavigate();
+  const { data: planos = [] } = useQuery({
+    queryKey: ["planos-public"],
+    queryFn: listPlanosPublic,
+  });
   useEffect(() => {
     if (getAdminSession()) navigate({ to: "/admin" });
     else if (getStudentSession()) navigate({ to: "/aluno" });
@@ -100,6 +107,76 @@ function Index() {
             </div>
           ))}
         </motion.div>
+
+        {planos.length > 0 && (
+          <motion.section
+            id="planos"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="mx-auto mt-24 max-w-6xl"
+          >
+            <div className="text-center">
+              <span className="inline-flex rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
+                Planos
+              </span>
+              <h2 className="mt-4 font-display text-3xl font-bold md:text-5xl">
+                Escolha como quer ser acompanhado
+              </h2>
+              <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
+                Do treino solo ao acompanhamento completo com nutrição.
+              </p>
+            </div>
+            <div className="mt-10 grid gap-5 md:grid-cols-3">
+              {planos.map((p, i) => {
+                const destaque = i === 1;
+                return (
+                  <div
+                    key={p.id}
+                    className={`relative flex flex-col rounded-3xl border p-6 shadow-[var(--shadow-sm)] transition ${
+                      destaque
+                        ? "border-primary/60 bg-card shadow-[var(--shadow-lg)]"
+                        : "border-border bg-card"
+                    }`}
+                  >
+                    {destaque && (
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[image:var(--gradient-primary)] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+                        Mais popular
+                      </span>
+                    )}
+                    <h3 className="font-display text-xl font-bold">{p.nome}</h3>
+                    {p.descricao && (
+                      <p className="mt-1 text-sm text-muted-foreground">{p.descricao}</p>
+                    )}
+                    <div className="mt-4 flex items-baseline gap-1">
+                      <span className="font-display text-4xl font-bold">
+                        {formatBRL(Number(p.preco_mensal))}
+                      </span>
+                      <span className="text-sm text-muted-foreground">/mês</span>
+                    </div>
+                    <ul className="mt-5 flex-1 space-y-2 text-sm">
+                      {(p.beneficios ?? []).map((b, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                            <Check className="h-3 w-3" />
+                          </span>
+                          <span>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <Button
+                      asChild
+                      className="mt-6 w-full"
+                      variant={destaque ? "default" : "outline"}
+                    >
+                      <Link to="/login">Quero esse plano</Link>
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.section>
+        )}
       </main>
     </div>
   );
