@@ -43,6 +43,31 @@ export interface Aluno {
   objetivo?: string | null;
   observacoes?: string | null;
   data_inicio?: string | null;
+  plano_id?: string | null;
+  meta_frequencia_semanal?: number | null;
+  meta_frequencia_mensal?: number | null;
+  stripe_customer_id?: string | null;
+}
+
+export interface Plano {
+  id: string;
+  nome: string;
+  descricao: string | null;
+  preco_mensal: number;
+  beneficios: string[];
+  ordem: number;
+  ativo: boolean;
+  stripe_price_id?: string | null;
+}
+
+export interface Academia {
+  id: string;
+  nome: string;
+  endereco: string | null;
+  lat: number;
+  lng: number;
+  raio_metros: number;
+  ativo: boolean;
 }
 
 export interface Checkin {
