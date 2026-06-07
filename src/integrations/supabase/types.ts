@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      academias: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          endereco: string | null
+          id: string
+          lat: number
+          lng: number
+          nome: string
+          raio_metros: number
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          endereco?: string | null
+          id?: string
+          lat: number
+          lng: number
+          nome: string
+          raio_metros?: number
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          endereco?: string | null
+          id?: string
+          lat?: number
+          lng?: number
+          nome?: string
+          raio_metros?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       admin_credentials: {
         Row: {
           id: number
@@ -74,10 +110,14 @@ export type Database = {
           data_inicio: string | null
           dia_vencimento: number | null
           id: string
+          meta_frequencia_mensal: number
+          meta_frequencia_semanal: number
           nome: string
           objetivo: string | null
           observacoes: string | null
+          plano_id: string | null
           status: string | null
+          stripe_customer_id: string | null
           telefone: string | null
           valor_mensalidade: number | null
         }
@@ -86,10 +126,14 @@ export type Database = {
           data_inicio?: string | null
           dia_vencimento?: number | null
           id: string
+          meta_frequencia_mensal?: number
+          meta_frequencia_semanal?: number
           nome: string
           objetivo?: string | null
           observacoes?: string | null
+          plano_id?: string | null
           status?: string | null
+          stripe_customer_id?: string | null
           telefone?: string | null
           valor_mensalidade?: number | null
         }
@@ -98,14 +142,26 @@ export type Database = {
           data_inicio?: string | null
           dia_vencimento?: number | null
           id?: string
+          meta_frequencia_mensal?: number
+          meta_frequencia_semanal?: number
           nome?: string
           objetivo?: string | null
           observacoes?: string | null
+          plano_id?: string | null
           status?: string | null
+          stripe_customer_id?: string | null
           telefone?: string | null
           valor_mensalidade?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "alunos_plano_id_fkey"
+            columns: ["plano_id"]
+            isOneToOne: false
+            referencedRelation: "planos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       checkins: {
         Row: {
@@ -264,6 +320,8 @@ export type Database = {
           mes_referencia: string
           pago_em: string | null
           status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
           valor: number
           vencimento: string
         }
@@ -274,6 +332,8 @@ export type Database = {
           mes_referencia: string
           pago_em?: string | null
           status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
           valor?: number
           vencimento: string
         }
@@ -284,8 +344,49 @@ export type Database = {
           mes_referencia?: string
           pago_em?: string | null
           status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
           valor?: number
           vencimento?: string
+        }
+        Relationships: []
+      }
+      planos: {
+        Row: {
+          ativo: boolean
+          beneficios: Json
+          created_at: string
+          descricao: string | null
+          id: string
+          nome: string
+          ordem: number
+          preco_mensal: number
+          stripe_price_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          beneficios?: Json
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome: string
+          ordem?: number
+          preco_mensal?: number
+          stripe_price_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          beneficios?: Json
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome?: string
+          ordem?: number
+          preco_mensal?: number
+          stripe_price_id?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
