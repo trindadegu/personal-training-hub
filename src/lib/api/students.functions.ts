@@ -15,6 +15,9 @@ const PatchSchema = z
     objetivo: z.string().max(2000).nullable().optional(),
     observacoes: z.string().max(5000).nullable().optional(),
     data_inicio: z.string().max(40).optional(),
+    plano_id: z.string().uuid().nullable().optional(),
+    meta_frequencia_semanal: z.number().int().min(0).max(7).optional(),
+    meta_frequencia_mensal: z.number().int().min(0).max(31).optional(),
   })
   .strict();
 
@@ -57,6 +60,7 @@ export const createStudentFn = createServerFn({ method: "POST" })
         telefone: z.string().max(40).nullable().optional(),
         valor_mensalidade: z.number().min(0).max(1_000_000).optional(),
         dia_vencimento: z.number().int().min(1).max(28).optional(),
+        plano_id: z.string().uuid().nullable().optional(),
       })
       .parse(input),
   )
@@ -71,6 +75,7 @@ export const createStudentFn = createServerFn({ method: "POST" })
         telefone: data.telefone ?? null,
         valor_mensalidade: data.valor_mensalidade ?? 0,
         dia_vencimento: data.dia_vencimento ?? 5,
+        plano_id: data.plano_id ?? null,
       })
       .select()
       .single();
