@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { DIAS, DIA_LABEL, type DiaSemana, type TreinoSemana, emptyTraining } from "@/lib/types";
+import { DIAS, DIA_LABEL, DIA_SHORT, type DiaSemana, type TreinoSemana, emptyTraining } from "@/lib/types";
 
 function normalize(v: TreinoSemana | null | undefined): TreinoSemana {
   const base = emptyTraining();
@@ -55,10 +55,10 @@ export function TrainingEditor({ value, onChange }: Props) {
 
   return (
     <Tabs value={day} onValueChange={(v) => setDay(v as DiaSemana)}>
-      <TabsList className="grid w-full grid-cols-5">
+      <TabsList className="grid w-full grid-cols-7">
         {DIAS.map((d) => (
-          <TabsTrigger key={d} value={d} className="text-xs">
-            {DIA_LABEL[d].slice(0, 3)}
+          <TabsTrigger key={d} value={d} className="text-xs px-1">
+            {DIA_SHORT[d]}
           </TabsTrigger>
         ))}
       </TabsList>
