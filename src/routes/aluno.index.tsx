@@ -333,7 +333,7 @@ function AlunoHomePage() {
           <div>
             <h3 className="font-display text-lg font-semibold">Check-in da academia</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Registre sua presença usando o GPS do celular.
+              Registre sua presença na academia mais próxima usando o GPS.
             </p>
             {lastCheckinQ.data && (
               <p className="mt-2 text-xs text-muted-foreground">

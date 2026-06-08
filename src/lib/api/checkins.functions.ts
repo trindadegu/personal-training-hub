@@ -34,29 +34,18 @@ export const createCheckinFn = createServerFn({ method: "POST" })
       data = { ...data, aluno_nome: aluno.nome };
     }
 
-    // Anti-fraude: validar que o aluno está MESMO dentro do raio de uma
-    // academia parceira cadastrada. Se nenhuma academia tiver sido cadastrada
-    // ainda, permite (modo "abertura"). Quando houver academias, exige que o
-    // GPS esteja dentro do raio configurado.
-    const { data: academias, error: eAc } = await supabaseAdmin
-      .from("academias")
-      .select("id, nome, lat, lng, raio_metros, ativo")
-      .eq("ativo", true);
-    if (eAc) throw dbError(eAc);
-    if (academias && academias.length > 0) {
-      let dentro = false;
-      for (const ac of academias) {
-        const dist = haversineMeters(data.lat_aluno, data.lng_aluno, ac.lat, ac.lng);
-        if (dist <= ac.raio_metros) {
-          dentro = true;
-          break;
-        }
-      }
-      if (!dentro) {
-        throw new Error(
-          "Você precisa estar dentro do raio de uma academia parceira para fazer check-in.",
-        );
-      }
+    // Anti-fraude leve: o aluno precisa estar fisicamente próximo da academia
+    // que ele selecionou (qualquer academia retornada pelo mapa serve).
+    const distAteGym = haversineMeters(
+      data.lat_aluno,
+      data.lng_aluno,
+      data.lat_gym,
+      data.lng_gym,
+    );
+    if (distAteGym > 500) {
+      throw new Error(
+        "Você precisa estar a no máximo 500 m da academia escolhida para fazer check-in.",
+      );
     }
 
     // 1 check-in por dia

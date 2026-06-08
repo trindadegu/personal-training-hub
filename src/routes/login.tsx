@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Dumbbell, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, Dumbbell, Eye, EyeOff, Loader2, MessageCircle } from "lucide-react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ThemeToggle } from "@/components/app/theme-toggle";
+import { WhatsappFab } from "@/components/app/whatsapp-fab";
 import { listStudentsPublic } from "@/lib/api/students";
 import { loginAdmin, loginStudent, getAdminWhatsapp } from "@/lib/api/auth";
 import { setAdminSession, setStudentSession } from "@/lib/session";
@@ -29,6 +30,14 @@ function LoginPage() {
         <div className="absolute -bottom-32 -right-20 h-96 w-96 rounded-full bg-accent opacity-15 blur-3xl" />
       </div>
 
+      <div className="absolute left-4 top-4">
+        <Button asChild variant="ghost" size="sm" className="gap-1.5">
+          <Link to="/">
+            <ArrowLeft className="h-4 w-4" />
+            Voltar
+          </Link>
+        </Button>
+      </div>
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
@@ -60,6 +69,8 @@ function LoginPage() {
           </Tabs>
         </div>
       </motion.div>
+
+      <WhatsappFab message="Olá! Preciso de ajuda para entrar no app de treinos." />
     </div>
   );
 }
@@ -69,6 +80,10 @@ function AdminLoginForm({ onDone }: { onDone: () => void }) {
   const [pwd, setPwd] = useState("");
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { data: adminWpp } = useQuery({
+    queryKey: ["admin-whatsapp-public"],
+    queryFn: getAdminWhatsapp,
+  });
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -119,6 +134,22 @@ function AdminLoginForm({ onDone }: { onDone: () => void }) {
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Entrar como admin"}
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full gap-2 border-[#25D366]/40 text-[#1ebe5b] hover:bg-[#25D366]/10 hover:text-[#1ebe5b]"
+        onClick={() => {
+          const wpp = (adminWpp ?? "").replace(/\D/g, "");
+          if (!wpp) {
+            toast.error("WhatsApp do professor não configurado.");
+            return;
+          }
+          const msg = encodeURIComponent("Olá! Estou com problema para acessar o painel admin.");
+          window.open(`https://wa.me/${wpp}?text=${msg}`, "_blank");
+        }}
+      >
+        <MessageCircle className="h-4 w-4" /> Precisa de ajuda? Falar no WhatsApp
       </Button>
     </form>
   );
@@ -209,13 +240,14 @@ function StudentLoginForm({ onDone }: { onDone: () => void }) {
       <Button type="submit" className="w-full" disabled={loading || !studentId}>
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Entrar"}
       </Button>
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={forgot}
-        className="block w-full text-center text-sm text-muted-foreground hover:text-foreground"
+        className="w-full gap-2 border-[#25D366]/40 text-[#1ebe5b] hover:bg-[#25D366]/10 hover:text-[#1ebe5b]"
       >
-        Esqueci minha senha — falar no WhatsApp
-      </button>
+        <MessageCircle className="h-4 w-4" /> Esqueci minha senha — falar com o professor
+      </Button>
     </form>
   );
 }

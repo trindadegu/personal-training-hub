@@ -17,6 +17,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { ThemeToggle } from "@/components/app/theme-toggle";
+import { WhatsappFab } from "@/components/app/whatsapp-fab";
 import { getAdminSession, getStudentSession } from "@/lib/session";
 import { listPlanosPublic } from "@/lib/api/planos";
 import { getAdminWhatsapp } from "@/lib/api/admin-contact";
@@ -28,6 +29,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const navigate = useNavigate();
+  const [sessionTarget, setSessionTarget] = useState<"/admin" | "/aluno" | null>(null);
   const { data: planos = [] } = useQuery({
     queryKey: ["planos-public"],
     queryFn: listPlanosPublic,
@@ -39,9 +41,9 @@ function Index() {
   const [leadEmail, setLeadEmail] = useState("");
   const [sending, setSending] = useState(false);
   useEffect(() => {
-    if (getAdminSession()) navigate({ to: "/admin" });
-    else if (getStudentSession()) navigate({ to: "/aluno" });
-  }, [navigate]);
+    if (getAdminSession()) setSessionTarget("/admin");
+    else if (getStudentSession()) setSessionTarget("/aluno");
+  }, []);
 
   function openLead(p: { id: string; nome: string }) {
     setPlanoSelecionado(p);
@@ -98,9 +100,15 @@ function Index() {
         </div>
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Button asChild size="sm">
-            <Link to="/login">Entrar</Link>
-          </Button>
+          {sessionTarget ? (
+            <Button size="sm" onClick={() => navigate({ to: sessionTarget })}>
+              Ir para meu painel
+            </Button>
+          ) : (
+            <Button asChild size="sm">
+              <Link to="/login">Entrar</Link>
+            </Button>
+          )}
         </div>
       </header>
 
@@ -126,12 +134,19 @@ function Index() {
             histórico do mês inteiro na palma da mão.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button asChild size="lg" className="group">
-              <Link to="/login">
-                Acessar minha conta
+            {sessionTarget ? (
+              <Button size="lg" className="group" onClick={() => navigate({ to: sessionTarget })}>
+                Ir para meu painel
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-            </Button>
+              </Button>
+            ) : (
+              <Button asChild size="lg" className="group">
+                <Link to="/login">
+                  Acessar minha conta
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </Button>
+            )}
           </div>
         </motion.div>
 
@@ -277,6 +292,8 @@ function Index() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <WhatsappFab />
     </div>
   );
 }
