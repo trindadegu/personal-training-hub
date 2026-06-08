@@ -1,6 +1,21 @@
-export type DiaSemana = "segunda" | "terca" | "quarta" | "quinta" | "sexta";
+export type DiaSemana =
+  | "segunda"
+  | "terca"
+  | "quarta"
+  | "quinta"
+  | "sexta"
+  | "sabado"
+  | "domingo";
 
-export const DIAS: DiaSemana[] = ["segunda", "terca", "quarta", "quinta", "sexta"];
+export const DIAS: DiaSemana[] = [
+  "segunda",
+  "terca",
+  "quarta",
+  "quinta",
+  "sexta",
+  "sabado",
+  "domingo",
+];
 
 export const DIA_LABEL: Record<DiaSemana, string> = {
   segunda: "Segunda",
@@ -8,6 +23,8 @@ export const DIA_LABEL: Record<DiaSemana, string> = {
   quarta: "Quarta",
   quinta: "Quinta",
   sexta: "Sexta",
+  sabado: "Sábado",
+  domingo: "Domingo",
 };
 
 export const DIA_SHORT: Record<DiaSemana, string> = {
@@ -16,6 +33,8 @@ export const DIA_SHORT: Record<DiaSemana, string> = {
   quarta: "Qua",
   quinta: "Qui",
   sexta: "Sex",
+  sabado: "Sáb",
+  domingo: "Dom",
 };
 
 export interface Exercicio {
@@ -47,6 +66,18 @@ export interface Aluno {
   meta_frequencia_semanal?: number | null;
   meta_frequencia_mensal?: number | null;
   stripe_customer_id?: string | null;
+  foto_url?: string | null;
+}
+
+export interface TreinoPdf {
+  id: string;
+  aluno_id: string;
+  nome: string;
+  descricao: string | null;
+  storage_path: string;
+  tamanho_bytes: number;
+  created_at: string;
+  signed_url?: string;
 }
 
 export interface Plano {

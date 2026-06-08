@@ -52,11 +52,13 @@ export const Route = createFileRoute("/aluno/")({
 
 function currentWeekday(): DiaSemana | null {
   const map: Record<number, DiaSemana> = {
+    0: "domingo",
     1: "segunda",
     2: "terca",
     3: "quarta",
     4: "quinta",
     5: "sexta",
+    6: "sabado",
   };
   return map[new Date().getDay()] ?? null;
 }
@@ -288,7 +290,7 @@ function AlunoHomePage() {
 
       {/* Day picker */}
       <section>
-        <div className="grid grid-cols-5 gap-2">
+        <div className="grid grid-cols-7 gap-1.5">
           {DIAS.map((d) => {
             const isActive = d === selected;
             const isDone = completedDays.has(d);
@@ -296,7 +298,7 @@ function AlunoHomePage() {
               <button
                 key={d}
                 onClick={() => setSelected(d)}
-                className={`relative flex flex-col items-center gap-1 rounded-2xl border px-2 py-3 text-xs font-medium transition-all ${
+                className={`relative flex flex-col items-center gap-1 rounded-2xl border px-1 py-3 text-xs font-medium transition-all ${
                   isActive
                     ? "border-primary bg-primary/10 text-primary shadow-[var(--shadow-sm)]"
                     : "border-border bg-card text-muted-foreground hover:border-primary/40"

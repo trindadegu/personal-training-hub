@@ -5,7 +5,7 @@ import { ThemeToggle } from "@/components/app/theme-toggle";
 import { clearStudentSession } from "@/lib/session";
 import type { StudentSession } from "@/lib/types";
 import { getStudentMe, logoutStudent } from "@/lib/api/auth";
-import { CalendarDays, Dumbbell, LogOut } from "lucide-react";
+import { CalendarDays, Dumbbell, LogOut, NotebookPen, User, Wallet } from "lucide-react";
 
 export const Route = createFileRoute("/aluno")({
   component: AlunoLayout,
@@ -50,6 +50,9 @@ function AlunoLayout() {
   const tabs = [
     { to: "/aluno", label: "Treino", icon: Dumbbell, exact: true },
     { to: "/aluno/historico", label: "Histórico", icon: CalendarDays, exact: false },
+    { to: "/aluno/anotacoes", label: "Anotações", icon: NotebookPen, exact: false },
+    { to: "/aluno/pagamentos", label: "Pagamentos", icon: Wallet, exact: false },
+    { to: "/aluno/perfil", label: "Perfil", icon: User, exact: false },
   ] as const;
 
   return (
@@ -92,7 +95,7 @@ function AlunoLayout() {
       </main>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur">
-        <div className="container mx-auto grid max-w-md grid-cols-2 px-4 py-2">
+        <div className="container mx-auto grid max-w-xl grid-cols-5 px-2 py-2">
           {tabs.map((t) => {
             const active = t.exact
               ? location.pathname === t.to
@@ -102,7 +105,7 @@ function AlunoLayout() {
               <Link
                 key={t.to}
                 to={t.to}
-                className={`flex flex-col items-center gap-1 rounded-xl py-2 text-xs font-medium transition-colors ${
+                className={`flex flex-col items-center gap-1 rounded-xl py-2 text-[11px] font-medium transition-colors ${
                   active ? "text-primary" : "text-muted-foreground hover:text-foreground"
                 }`}
               >

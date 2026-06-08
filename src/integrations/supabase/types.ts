@@ -109,6 +109,7 @@ export type Database = {
           created_at: string
           data_inicio: string | null
           dia_vencimento: number | null
+          foto_url: string | null
           id: string
           meta_frequencia_mensal: number
           meta_frequencia_semanal: number
@@ -125,6 +126,7 @@ export type Database = {
           created_at?: string
           data_inicio?: string | null
           dia_vencimento?: number | null
+          foto_url?: string | null
           id: string
           meta_frequencia_mensal?: number
           meta_frequencia_semanal?: number
@@ -141,6 +143,7 @@ export type Database = {
           created_at?: string
           data_inicio?: string | null
           dia_vencimento?: number | null
+          foto_url?: string | null
           id?: string
           meta_frequencia_mensal?: number
           meta_frequencia_semanal?: number
@@ -169,9 +172,12 @@ export type Database = {
           aluno_nome: string
           created_at: string
           distance_m: number | null
+          duracao_segundos: number | null
+          fim_at: string | null
           gym_address: string | null
           gym_name: string
           id: string
+          inicio_at: string | null
           lat_aluno: number | null
           lat_gym: number | null
           lng_aluno: number | null
@@ -182,9 +188,12 @@ export type Database = {
           aluno_nome: string
           created_at?: string
           distance_m?: number | null
+          duracao_segundos?: number | null
+          fim_at?: string | null
           gym_address?: string | null
           gym_name: string
           id?: string
+          inicio_at?: string | null
           lat_aluno?: number | null
           lat_gym?: number | null
           lng_aluno?: number | null
@@ -195,9 +204,12 @@ export type Database = {
           aluno_nome?: string
           created_at?: string
           distance_m?: number | null
+          duracao_segundos?: number | null
+          fim_at?: string | null
           gym_address?: string | null
           gym_name?: string
           id?: string
+          inicio_at?: string | null
           lat_aluno?: number | null
           lat_gym?: number | null
           lng_aluno?: number | null
@@ -466,6 +478,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      treino_pdfs: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          descricao: string | null
+          id: string
+          nome: string
+          storage_path: string
+          tamanho_bytes: number
+        }
+        Insert: {
+          aluno_id: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome: string
+          storage_path: string
+          tamanho_bytes?: number
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome?: string
+          storage_path?: string
+          tamanho_bytes?: number
+        }
+        Relationships: []
       }
       treinos: {
         Row: {
