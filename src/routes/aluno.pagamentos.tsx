@@ -80,6 +80,11 @@ function PagamentosPage() {
                     <p className="text-xs text-muted-foreground">
                       Vence {formatDateBR(p.vencimento)} · {formatBRL(Number(p.valor))}
                     </p>
+                    {p.pago_em && (
+                      <p className="text-[11px] text-emerald-700 dark:text-emerald-400">
+                        Pago em {formatDateBR(p.pago_em)}
+                      </p>
+                    )}
                   </div>
                   <span
                     className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase ${
