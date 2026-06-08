@@ -29,6 +29,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { createStudent, deleteStudent, listStudents } from "@/lib/api/students";
 import { formatBRL } from "@/lib/api/config";
+import { listPlanosAdmin } from "@/lib/api/planos";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/admin/alunos")({
   component: AlunosPage,
@@ -37,32 +45,39 @@ export const Route = createFileRoute("/admin/alunos")({
 function AlunosPage() {
   const qc = useQueryClient();
   const { data: alunos = [], isLoading } = useQuery({ queryKey: ["alunos"], queryFn: listStudents });
+  const { data: planosAll = [] } = useQuery({ queryKey: ["planos-admin"], queryFn: listPlanosAdmin });
+  const planos = planosAll.filter((p: any) => p.ativo);
   const [open, setOpen] = useState(false);
   const [nome, setNome] = useState("");
   const [tel, setTel] = useState("");
   const [valor, setValor] = useState<string>("");
   const [dia, setDia] = useState<string>("5");
+  const [planoId, setPlanoId] = useState<string>("");
   const [filter, setFilter] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const planoEscolhido = planos.find((p: any) => p.id === planoId);
 
   const filtered = alunos.filter((a) =>
     a.nome.toLowerCase().includes(filter.toLowerCase()),
   );
 
   async function add() {
-    if (!nome.trim()) return;
+    if (!nome.trim() || !planoId) return;
     setSaving(true);
     try {
       await createStudent(nome.trim(), {
         telefone: tel.trim() || undefined,
         valor_mensalidade: Number(valor.replace(",", ".")) || 0,
         dia_vencimento: Math.min(Math.max(Number(dia) || 5, 1), 28),
+        plano_id: planoId,
       });
       toast.success("Aluno criado!");
       setNome("");
       setTel("");
       setValor("");
       setDia("5");
+      setPlanoId("");
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["alunos"] });
     } catch (err: any) {
@@ -109,6 +124,44 @@ function AlunosPage() {
                 <Label htmlFor="tel">Telefone (opcional)</Label>
                 <Input id="tel" value={tel} onChange={(e) => setTel(e.target.value)} placeholder="(85) 99999-9999" />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="plano">Plano contratado *</Label>
+                <Select
+                  value={planoId}
+                  onValueChange={(v) => {
+                    setPlanoId(v);
+                    const p = planos.find((x: any) => x.id === v);
+                    if (p) setValor(String(Number(p.preco_mensal)).replace(".", ","));
+                  }}
+                >
+                  <SelectTrigger id="plano">
+                    <SelectValue placeholder={planos.length ? "Selecione um plano" : "Cadastre planos primeiro"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {planos.map((p: any) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.nome} — {formatBRL(Number(p.preco_mensal))}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {planoEscolhido && (
+                  <div className="mt-2 rounded-lg border border-border bg-muted/40 p-3">
+                    {planoEscolhido.descricao && (
+                      <p className="text-xs text-muted-foreground">{planoEscolhido.descricao}</p>
+                    )}
+                    {Array.isArray(planoEscolhido.beneficios) && planoEscolhido.beneficios.length > 0 && (
+                      <ul className="mt-2 flex flex-wrap gap-1.5">
+                        {planoEscolhido.beneficios.map((b: string, i: number) => (
+                          <li key={i} className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+                            {b}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="valor">Mensalidade (R$)</Label>
@@ -125,7 +178,7 @@ function AlunosPage() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-              <Button onClick={add} disabled={saving || !nome.trim()}>Criar</Button>
+              <Button onClick={add} disabled={saving || !nome.trim() || !planoId}>Criar</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
