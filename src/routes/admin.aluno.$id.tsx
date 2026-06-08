@@ -432,3 +432,150 @@ function PagamentosTab({
     </div>
   );
 }
+
+function PdfsTab({
+  alunoId,
+  pdfs,
+  onChange,
+}: {
+  alunoId: string;
+  pdfs: Awaited<ReturnType<typeof listPdfsAdmin>>;
+  onChange: () => void;
+}) {
+  const [nome, setNome] = useState("");
+  const [descricao, setDescricao] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useState<HTMLInputElement | null>(null);
+
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (f.type !== "application/pdf") {
+      toast.error("Apenas PDF.");
+      return;
+    }
+    if (f.size > 10 * 1024 * 1024) {
+      toast.error("PDF muito grande (máx 10 MB)");
+      return;
+    }
+    setUploading(true);
+    try {
+      const b64 = await new Promise<string>((res, rej) => {
+        const r = new FileReader();
+        r.onerror = () => rej(r.error);
+        r.onload = () => res(String(r.result));
+        r.readAsDataURL(f);
+      });
+      await uploadPdf({
+        alunoId,
+        nome: nome || f.name.replace(/\.pdf$/i, ""),
+        descricao: descricao || null,
+        base64: b64,
+      });
+      setNome("");
+      setDescricao("");
+      toast.success("PDF anexado");
+      onChange();
+    } catch (err: any) {
+      toast.error(err?.message ?? "Falha no upload");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  }
+
+  async function rm(id: string) {
+    if (!confirm("Excluir este PDF?")) return;
+    await deletePdf(id);
+    toast.success("PDF excluído");
+    onChange();
+  }
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[1fr_1.4fr]">
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-display text-base">Anexar novo PDF</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="space-y-1.5">
+            <Label>Nome (opcional)</Label>
+            <Input
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder="Ex: Ficha de musculação"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Descrição (opcional)</Label>
+            <Textarea
+              rows={3}
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+              placeholder="Ex: Treino A - hipertrofia"
+            />
+          </div>
+          <label className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-muted/40 px-4 py-6 text-sm font-medium text-muted-foreground hover:border-primary/40 cursor-pointer">
+            <Upload className="h-4 w-4" />
+            {uploading ? "Enviando..." : "Selecionar PDF"}
+            <input
+              type="file"
+              accept="application/pdf"
+              className="hidden"
+              onChange={handleUpload}
+              disabled={uploading}
+            />
+          </label>
+        </CardContent>
+      </Card>
+
+      <div className="space-y-2">
+        {pdfs.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center text-sm text-muted-foreground">
+              Nenhum PDF anexado.
+            </CardContent>
+          </Card>
+        ) : (
+          pdfs.map((p) => (
+            <Card key={p.id}>
+              <CardContent className="flex items-center justify-between p-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <span className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
+                    <FileText className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{p.nome}</p>
+                    {p.descricao && (
+                      <p className="truncate text-xs text-muted-foreground">
+                        {p.descricao}
+                      </p>
+                    )}
+                    <p className="text-[10px] text-muted-foreground">
+                      {(p.tamanho_bytes / 1024).toFixed(0)} KB · {formatDateBR(p.created_at.slice(0, 10))}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {p.signed_url && (
+                    <a
+                      href={p.signed_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 rounded-md border border-border px-3 py-1.5 text-xs font-semibold"
+                    >
+                      <Download className="h-3.5 w-3.5" /> Abrir
+                    </a>
+                  )}
+                  <Button variant="ghost" size="icon" onClick={() => rm(p.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
