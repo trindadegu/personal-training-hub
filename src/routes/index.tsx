@@ -1,12 +1,25 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Dumbbell, MapPin, LineChart, ArrowRight, Check } from "lucide-react";
-import { useEffect } from "react";
+import { Dumbbell, MapPin, LineChart, ArrowRight, Check, MessageCircle } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { ThemeToggle } from "@/components/app/theme-toggle";
 import { getAdminSession, getStudentSession } from "@/lib/session";
 import { listPlanosPublic } from "@/lib/api/planos";
+import { getAdminWhatsapp } from "@/lib/api/admin-contact";
 import { formatBRL } from "@/lib/api/config";
 
 export const Route = createFileRoute("/")({
@@ -19,10 +32,60 @@ function Index() {
     queryKey: ["planos-public"],
     queryFn: listPlanosPublic,
   });
+  const [leadOpen, setLeadOpen] = useState(false);
+  const [planoSelecionado, setPlanoSelecionado] = useState<{ id: string; nome: string } | null>(null);
+  const [leadNome, setLeadNome] = useState("");
+  const [leadTel, setLeadTel] = useState("");
+  const [leadEmail, setLeadEmail] = useState("");
+  const [sending, setSending] = useState(false);
   useEffect(() => {
     if (getAdminSession()) navigate({ to: "/admin" });
     else if (getStudentSession()) navigate({ to: "/aluno" });
   }, [navigate]);
+
+  function openLead(p: { id: string; nome: string }) {
+    setPlanoSelecionado(p);
+    setLeadNome("");
+    setLeadTel("");
+    setLeadEmail("");
+    setLeadOpen(true);
+  }
+
+  async function enviarLead() {
+    const schema = z.object({
+      nome: z.string().trim().min(2, "Informe seu nome").max(120),
+      telefone: z.string().trim().min(8, "Telefone inválido").max(40),
+      email: z.string().trim().email("E-mail inválido").max(160),
+    });
+    const parsed = schema.safeParse({ nome: leadNome, telefone: leadTel, email: leadEmail });
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0]?.message ?? "Dados inválidos");
+      return;
+    }
+    if (!planoSelecionado) return;
+    setSending(true);
+    try {
+      const numero = (await getAdminWhatsapp()).replace(/\D/g, "");
+      if (!numero) {
+        toast.error("WhatsApp do professor não configurado.");
+        return;
+      }
+      const msg =
+        `Olá! Tenho interesse em contratar um plano.\n\n` +
+        `Nome: ${parsed.data.nome}\n` +
+        `Telefone: ${parsed.data.telefone}\n` +
+        `E-mail: ${parsed.data.email}\n` +
+        `Plano escolhido: ${planoSelecionado.nome}\n\n` +
+        `Gostaria de mais informações e dar continuidade à contratação.\n\nObrigado!`;
+      window.open(`https://wa.me/${numero}?text=${encodeURIComponent(msg)}`, "_blank");
+      setLeadOpen(false);
+      toast.success("Solicitação enviada! Em breve o professor entrará em contato.");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Falha ao enviar.");
+    } finally {
+      setSending(false);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -165,11 +228,11 @@ function Index() {
                       ))}
                     </ul>
                     <Button
-                      asChild
                       className="mt-6 w-full"
                       variant={destaque ? "default" : "outline"}
+                      onClick={() => openLead({ id: p.id, nome: p.nome })}
                     >
-                      <Link to="/login">Quero esse plano</Link>
+                      Quero esse plano
                     </Button>
                   </div>
                 );
@@ -178,6 +241,42 @@ function Index() {
           </motion.section>
         )}
       </main>
+
+      <Dialog open={leadOpen} onOpenChange={setLeadOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">
+              Quero o {planoSelecionado?.nome}
+            </DialogTitle>
+            <DialogDescription>
+              Preencha seus dados e abriremos o WhatsApp do professor com sua mensagem pronta.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="lead-nome">Nome completo</Label>
+              <Input id="lead-nome" value={leadNome} onChange={(e) => setLeadNome(e.target.value)} placeholder="Seu nome" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="lead-tel">Telefone</Label>
+              <Input id="lead-tel" value={leadTel} onChange={(e) => setLeadTel(e.target.value)} placeholder="(85) 99999-9999" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="lead-email">E-mail</Label>
+              <Input id="lead-email" type="email" value={leadEmail} onChange={(e) => setLeadEmail(e.target.value)} placeholder="voce@email.com" />
+            </div>
+            <p className="rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">
+              Após confirmação, o professor criará seu acesso e enviará a senha.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLeadOpen(false)}>Cancelar</Button>
+            <Button onClick={enviarLead} disabled={sending}>
+              <MessageCircle className="h-4 w-4" /> Continuar no WhatsApp
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
