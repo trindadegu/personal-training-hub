@@ -13,25 +13,48 @@ function getSupabase() {
   return _supabase;
 }
 
-async function markPagamentoPaid(pagamentoId: string) {
+async function markPagamentoPaid(pagamentoId: string, sessionId: string | null) {
   const supabase = getSupabase();
   const today = new Date().toISOString().slice(0, 10);
 
   const { data: pag } = await supabase
     .from("pagamentos")
-    .select("id, aluno_id, valor, mes_referencia, status")
+    .select("id, aluno_id, valor, mes_referencia, status, stripe_session_id")
     .eq("id", pagamentoId)
     .maybeSingle();
   if (!pag) {
     console.error("Webhook: pagamento not found", pagamentoId);
     return;
   }
-  if ((pag as any).status === "pago") return; // idempotente
+  // Idempotente: se já está pago (manual ou outro webhook), não duplica nada.
+  if ((pag as any).status === "pago") {
+    // Apenas grava o session_id se ainda não estava preenchido (auditoria).
+    if (sessionId && !(pag as any).stripe_session_id) {
+      await (supabase as any)
+        .from("pagamentos")
+        .update({ stripe_session_id: sessionId, pago_via: "stripe" })
+        .eq("id", pagamentoId);
+    }
+    return;
+  }
 
   await (supabase as any)
     .from("pagamentos")
-    .update({ status: "pago", pago_em: today })
+    .update({
+      status: "pago",
+      pago_em: today,
+      stripe_session_id: sessionId,
+      pago_via: "stripe",
+    })
     .eq("id", pagamentoId);
+
+  // Evita lançamento duplicado se já existir um para esta fatura.
+  const { data: existingLanc } = await supabase
+    .from("financeiro_lancamentos")
+    .select("id")
+    .eq("pagamento_id", pagamentoId)
+    .limit(1);
+  if (existingLanc && existingLanc.length > 0) return;
 
   await (supabase as any).from("financeiro_lancamentos").insert({
     escopo: "negocio",
@@ -54,7 +77,8 @@ async function handleWebhook(req: Request, env: StripeEnv) {
       const obj = event.data.object as any;
       const pagamentoId =
         obj?.metadata?.pagamento_id || obj?.client_reference_id;
-      if (pagamentoId) await markPagamentoPaid(pagamentoId);
+      const sessionId = obj?.id ?? null;
+      if (pagamentoId) await markPagamentoPaid(pagamentoId, sessionId);
       break;
     }
     default:
