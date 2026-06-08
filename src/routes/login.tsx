@@ -80,6 +80,10 @@ function AdminLoginForm({ onDone }: { onDone: () => void }) {
   const [pwd, setPwd] = useState("");
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { data: adminWpp } = useQuery({
+    queryKey: ["admin-whatsapp-public"],
+    queryFn: getAdminWhatsapp,
+  });
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -130,6 +134,22 @@ function AdminLoginForm({ onDone }: { onDone: () => void }) {
       </div>
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Entrar como admin"}
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full gap-2 border-[#25D366]/40 text-[#1ebe5b] hover:bg-[#25D366]/10 hover:text-[#1ebe5b]"
+        onClick={() => {
+          const wpp = (adminWpp ?? "").replace(/\D/g, "");
+          if (!wpp) {
+            toast.error("WhatsApp do professor não configurado.");
+            return;
+          }
+          const msg = encodeURIComponent("Olá! Estou com problema para acessar o painel admin.");
+          window.open(`https://wa.me/${wpp}?text=${msg}`, "_blank");
+        }}
+      >
+        <MessageCircle className="h-4 w-4" /> Precisa de ajuda? Falar no WhatsApp
       </Button>
     </form>
   );
@@ -220,13 +240,14 @@ function StudentLoginForm({ onDone }: { onDone: () => void }) {
       <Button type="submit" className="w-full" disabled={loading || !studentId}>
         {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Entrar"}
       </Button>
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={forgot}
-        className="block w-full text-center text-sm text-muted-foreground hover:text-foreground"
+        className="w-full gap-2 border-[#25D366]/40 text-[#1ebe5b] hover:bg-[#25D366]/10 hover:text-[#1ebe5b]"
       >
-        Esqueci minha senha — falar no WhatsApp
-      </button>
+        <MessageCircle className="h-4 w-4" /> Esqueci minha senha — falar com o professor
+      </Button>
     </form>
   );
 }
