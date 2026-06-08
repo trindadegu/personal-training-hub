@@ -34,6 +34,7 @@ import {
 import {
   checkinToday,
   createCheckin,
+  finishCheckin,
   lastCheckinForStudent,
 } from "@/lib/api/checkins";
 import { registerCompletedSession } from "@/lib/api/historico";
@@ -144,6 +145,16 @@ function AlunoHomePage() {
           exerciciosFeitosIdx: nextDayIdx,
           checkinId: todayCheckin?.id ?? null,
         });
+        // Finaliza automaticamente o check-in do dia (entrada/saída).
+        if (todayCheckin?.id && !todayCheckin.fim_at) {
+          try {
+            const finalizado = await finishCheckin(todayCheckin.id, alunoId);
+            qc.setQueryData(["today-checkin", alunoId], finalizado);
+            qc.invalidateQueries({ queryKey: ["last-checkin", alunoId] });
+          } catch {
+            /* não bloqueia o fluxo */
+          }
+        }
         qc.invalidateQueries({ queryKey: ["historico", alunoId] });
         toast.success("Treino concluído! 🔥", {
           description: `${dia.exercises.length} exercícios registrados no histórico.`,

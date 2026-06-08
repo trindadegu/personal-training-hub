@@ -74,7 +74,7 @@ export const createCheckinFn = createServerFn({ method: "POST" })
 
     const { data: row, error } = await supabaseAdmin
       .from("checkins")
-      .insert(data)
+      .insert({ ...data, inicio_at: new Date().toISOString() })
       .select()
       .single();
     if (error) throw dbError(error);
