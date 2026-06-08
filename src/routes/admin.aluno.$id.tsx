@@ -445,7 +445,6 @@ function PdfsTab({
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
   const [uploading, setUploading] = useState(false);
-  const fileRef = useState<HTMLInputElement | null>(null);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
