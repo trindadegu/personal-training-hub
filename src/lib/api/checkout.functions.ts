@@ -51,7 +51,7 @@ export const createPagamentoCheckoutFn = createServerFn({ method: "POST" })
           },
         ],
         mode: "payment",
-        ui_mode: "embedded" as any,
+        ui_mode: "embedded_page" as any,
         return_url: data.returnUrl,
         payment_intent_data: { description },
         client_reference_id: pagamento.id,

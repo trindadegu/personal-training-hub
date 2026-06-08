@@ -23,6 +23,20 @@ export const createCheckinFn = createServerFn({ method: "POST" })
   .inputValidator((input) => CheckinSchema.parse(input))
   .handler(async ({ data }) => {
     await requireStudentSessionFor(data.aluno_id);
+    // Bloqueia check-in se houver mensalidade em atraso
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: overdue } = await supabaseAdmin
+      .from("pagamentos")
+      .select("id")
+      .eq("aluno_id", data.aluno_id)
+      .eq("status", "pendente")
+      .lt("vencimento", today)
+      .limit(1);
+    if (overdue && overdue.length > 0) {
+      throw new Error(
+        "Você tem mensalidade em atraso. Regularize o pagamento para registrar check-in.",
+      );
+    }
     const { data: aluno } = await supabaseAdmin
       .from("alunos")
       .select("id, nome")
