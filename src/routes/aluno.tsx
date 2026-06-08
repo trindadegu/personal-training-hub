@@ -1,11 +1,14 @@
 import { createFileRoute, Link, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/app/theme-toggle";
 import { clearStudentSession } from "@/lib/session";
 import type { StudentSession } from "@/lib/types";
 import { getStudentMe, logoutStudent } from "@/lib/api/auth";
-import { CalendarDays, Dumbbell, LogOut, NotebookPen, User, Wallet } from "lucide-react";
+import { AlertTriangle, CalendarDays, Dumbbell, LogOut, NotebookPen, User, Wallet } from "lucide-react";
+import { PaymentTestModeBanner } from "@/components/app/payment-test-banner";
+import { myHasOverdueFn } from "@/lib/api/checkout.functions";
 
 export const Route = createFileRoute("/aluno")({
   component: AlunoLayout,
@@ -57,6 +60,8 @@ function AlunoLayout() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
+      <PaymentTestModeBanner />
+      <OverdueBanner />
       <header className="sticky top-0 z-30 border-b border-border bg-card/80 backdrop-blur">
         <div className="container mx-auto flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
@@ -117,5 +122,23 @@ function AlunoLayout() {
         </div>
       </nav>
     </div>
+  );
+}
+
+function OverdueBanner() {
+  const { data } = useQuery({
+    queryKey: ["my-overdue"],
+    queryFn: () => myHasOverdueFn(),
+    refetchInterval: 30000,
+  });
+  if (!data?.overdue) return null;
+  return (
+    <Link
+      to="/aluno/pagamentos"
+      className="flex items-center justify-center gap-2 bg-destructive px-4 py-2 text-center text-sm font-semibold text-destructive-foreground"
+    >
+      <AlertTriangle className="h-4 w-4" />
+      Mensalidade em atraso — toque para pagar agora
+    </Link>
   );
 }
