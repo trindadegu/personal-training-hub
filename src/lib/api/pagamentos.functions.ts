@@ -54,9 +54,17 @@ export const marcarPagoFn = createServerFn({ method: "POST" })
     const today = new Date().toISOString().slice(0, 10);
     const { error } = await supabaseAdmin
       .from("pagamentos")
-      .update({ status: "pago", pago_em: today })
+      .update({ status: "pago", pago_em: today, pago_via: "manual" })
       .eq("id", data.id);
     if (error) throw dbError(error);
+    // Idempotente: não cria lançamento se já existir um vinculado a esta fatura
+    // (evita duplicidade quando o webhook do Stripe também marca pago).
+    const { data: existing } = await supabaseAdmin
+      .from("financeiro_lancamentos")
+      .select("id")
+      .eq("pagamento_id", data.id)
+      .limit(1);
+    if (existing && existing.length > 0) return { ok: true };
     const { error: e2 } = await supabaseAdmin.from("financeiro_lancamentos").insert({
       escopo: "negocio",
       tipo: "receita",

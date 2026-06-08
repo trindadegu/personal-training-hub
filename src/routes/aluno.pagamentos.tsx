@@ -27,6 +27,7 @@ function PagamentosPage() {
   useEffect(() => {
     if (paid) {
       toast.success("Pagamento processado! Atualizando…");
+      setOpenId(null);
       // refetch in a few seconds to give webhook time to mark paid
       const t = setTimeout(() => {
         qc.invalidateQueries({ queryKey: ["my-pagamentos"] });

@@ -331,6 +331,7 @@ export type Database = {
           id: string
           mes_referencia: string
           pago_em: string | null
+          pago_via: string | null
           status: string
           stripe_payment_intent_id: string | null
           stripe_session_id: string | null
@@ -343,6 +344,7 @@ export type Database = {
           id?: string
           mes_referencia: string
           pago_em?: string | null
+          pago_via?: string | null
           status?: string
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
@@ -355,6 +357,7 @@ export type Database = {
           id?: string
           mes_referencia?: string
           pago_em?: string | null
+          pago_via?: string | null
           status?: string
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
