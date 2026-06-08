@@ -28,12 +28,12 @@ async function markPagamentoPaid(pagamentoId: string) {
   }
   if ((pag as any).status === "pago") return; // idempotente
 
-  await supabase
+  await (supabase as any)
     .from("pagamentos")
     .update({ status: "pago", pago_em: today })
     .eq("id", pagamentoId);
 
-  await supabase.from("financeiro_lancamentos").insert({
+  await (supabase as any).from("financeiro_lancamentos").insert({
     escopo: "negocio",
     tipo: "receita",
     categoria: "Mensalidade",
