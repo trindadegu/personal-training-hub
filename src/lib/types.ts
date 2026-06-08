@@ -113,6 +113,9 @@ export interface Checkin {
   lat_gym: number | null;
   lng_gym: number | null;
   created_at: string;
+  inicio_at?: string | null;
+  fim_at?: string | null;
+  duracao_segundos?: number | null;
 }
 
 export interface HistoricoEntry {

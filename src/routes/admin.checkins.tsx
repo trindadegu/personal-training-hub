@@ -83,6 +83,15 @@ function CheckinsPage() {
                         timeStyle: "short",
                       })}
                     </p>
+                    {c.duracao_segundos != null && c.duracao_segundos > 0 ? (
+                      <p className="mt-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                        Duração: {Math.floor(c.duracao_segundos / 60)} min
+                      </p>
+                    ) : c.inicio_at && !c.fim_at ? (
+                      <p className="mt-0.5 text-[11px] font-medium text-amber-600">
+                        Em andamento
+                      </p>
+                    ) : null}
                     {c.lat_aluno != null && c.lng_aluno != null && (
                       <a
                         className="mt-1 inline-flex items-center gap-1 text-xs text-primary hover:underline"

@@ -74,7 +74,7 @@ export const createCheckinFn = createServerFn({ method: "POST" })
 
     const { data: row, error } = await supabaseAdmin
       .from("checkins")
-      .insert(data)
+      .insert({ ...data, inicio_at: new Date().toISOString() })
       .select()
       .single();
     if (error) throw dbError(error);
@@ -121,12 +121,39 @@ export const checkinTodayFn = createServerFn({ method: "POST" })
     start.setHours(0, 0, 0, 0);
     const { data: row, error } = await supabaseAdmin
       .from("checkins")
-      .select("id, aluno_id, aluno_nome, gym_name, gym_address, distance_m, created_at")
+      .select("id, aluno_id, aluno_nome, gym_name, gym_address, distance_m, created_at, inicio_at, fim_at, duracao_segundos")
       .eq("aluno_id", data.alunoId)
       .gte("created_at", start.toISOString())
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
+    if (error) throw dbError(error);
+    return row;
+  });
+
+/** Aluno finaliza o treino do dia: grava fim_at e duracao_segundos. */
+export const finishCheckinFn = createServerFn({ method: "POST" })
+  .inputValidator((input) =>
+    z.object({ id: z.string().min(1).max(120), alunoId: z.string().min(1).max(120) }).parse(input),
+  )
+  .handler(async ({ data }) => {
+    await requireStudentSessionFor(data.alunoId);
+    const { data: cur } = await supabaseAdmin
+      .from("checkins")
+      .select("id, aluno_id, inicio_at, created_at, fim_at")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (!cur || cur.aluno_id !== data.alunoId) throw new Error("Check-in não encontrado");
+    if (cur.fim_at) return cur; // idempotente
+    const inicio = new Date(cur.inicio_at ?? cur.created_at).getTime();
+    const fim = Date.now();
+    const duracao = Math.max(0, Math.round((fim - inicio) / 1000));
+    const { data: row, error } = await supabaseAdmin
+      .from("checkins")
+      .update({ fim_at: new Date(fim).toISOString(), duracao_segundos: duracao })
+      .eq("id", data.id)
+      .select()
+      .single();
     if (error) throw dbError(error);
     return row;
   });

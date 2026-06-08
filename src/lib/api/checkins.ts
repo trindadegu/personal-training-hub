@@ -4,6 +4,7 @@ import {
   listCheckinsAdminFn,
   lastCheckinForStudentFn,
   checkinTodayFn,
+  finishCheckinFn,
 } from "./checkins.functions";
 
 export interface NewCheckin {
@@ -32,4 +33,8 @@ export async function lastCheckinForStudent(alunoId: string): Promise<Checkin | 
 
 export async function checkinToday(alunoId: string): Promise<Checkin | null> {
   return ((await checkinTodayFn({ data: { alunoId } })) as Checkin | null) ?? null;
+}
+
+export async function finishCheckin(id: string, alunoId: string): Promise<Checkin> {
+  return (await finishCheckinFn({ data: { id, alunoId } })) as Checkin;
 }
