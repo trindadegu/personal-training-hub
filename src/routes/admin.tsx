@@ -39,7 +39,6 @@ const NAV = [
   { to: "/admin/treinos", label: "Treinos", icon: Dumbbell, exact: false },
   { to: "/admin/padrao", label: "Treino padrão", icon: ClipboardList, exact: false },
   { to: "/admin/checkins", label: "Check-ins", icon: MapPin, exact: false },
-  { to: "/admin/academias", label: "Academias", icon: Building2, exact: false },
   { to: "/admin/financeiro", label: "Financeiro · Negócio", icon: Wallet, exact: false },
   { to: "/admin/pessoal", label: "Financeiro · Pessoal", icon: Wallet2, exact: false },
   { to: "/admin/configuracoes", label: "Configurações", icon: Settings, exact: false },
