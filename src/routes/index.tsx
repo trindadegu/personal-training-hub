@@ -292,6 +292,8 @@ function Index() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <WhatsappFab />
     </div>
   );
 }
