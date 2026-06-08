@@ -16,6 +16,8 @@ import {
   Activity,
   Wallet,
   NotebookPen,
+  FileText,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +30,7 @@ import { findStudent, updateStudent } from "@/lib/api/students";
 import { listHistoricoAll } from "@/lib/api/historico";
 import { listNotas, createNota, deleteNota } from "@/lib/api/notas";
 import { listPagamentos, marcarPago, marcarPendente, gerarMensalidadesDoMes, mesLabel } from "@/lib/api/pagamentos";
+import { listPdfsAdmin, uploadPdf, deletePdf } from "@/lib/api/pdfs";
 import { getConfig, whatsappLink, formatBRL, formatDateBR } from "@/lib/api/config";
 import { exportProntuarioPDF } from "@/lib/pdf";
 
@@ -44,6 +47,7 @@ function AlunoDetail() {
   const { data: notas = [] } = useQuery({ queryKey: ["notas", id], queryFn: () => listNotas(id) });
   const { data: historico = [] } = useQuery({ queryKey: ["historico-all", id], queryFn: () => listHistoricoAll(id) });
   const { data: pagamentos = [] } = useQuery({ queryKey: ["pagamentos", id], queryFn: () => listPagamentos({ alunoId: id }) });
+  const { data: pdfs = [] } = useQuery({ queryKey: ["pdfs", id], queryFn: () => listPdfsAdmin(id) });
 
   if (!aluno) return <p className="text-sm text-muted-foreground">Carregando...</p>;
 
@@ -84,6 +88,7 @@ function AlunoDetail() {
           <TabsTrigger value="notas"><NotebookPen className="mr-1 h-3.5 w-3.5" />Caderno</TabsTrigger>
           <TabsTrigger value="historico"><Calendar className="mr-1 h-3.5 w-3.5" />Histórico</TabsTrigger>
           <TabsTrigger value="pagamentos"><Wallet className="mr-1 h-3.5 w-3.5" />Pagamentos</TabsTrigger>
+          <TabsTrigger value="pdfs"><FileText className="mr-1 h-3.5 w-3.5" />PDFs</TabsTrigger>
         </TabsList>
 
         <TabsContent value="resumo" className="mt-4 space-y-4">
@@ -107,6 +112,14 @@ function AlunoDetail() {
             aluno={aluno}
             pagamentos={pagamentos}
             onChange={() => qc.invalidateQueries({ queryKey: ["pagamentos", id] })}
+          />
+        </TabsContent>
+
+        <TabsContent value="pdfs" className="mt-4">
+          <PdfsTab
+            alunoId={id}
+            pdfs={pdfs}
+            onChange={() => qc.invalidateQueries({ queryKey: ["pdfs", id] })}
           />
         </TabsContent>
       </Tabs>

@@ -41,7 +41,7 @@ const MESES_PT = [
 function anosDisponiveis() {
   const atual = new Date().getFullYear();
   const arr: number[] = [];
-  for (let y = atual - 5; y <= atual + 1; y++) arr.push(y);
+  for (let y = atual - 5; y <= atual; y++) arr.push(y);
   return arr;
 }
 function rangeOfMonth(mes: string) {
@@ -59,7 +59,16 @@ export function FinanceiroPanel({ escopo, titulo }: { escopo: Escopo; titulo: st
   const [anoStr, mesStr] = mes.split("-");
   const ano = Number(anoStr);
   const mesNum = Number(mesStr);
+  const hoje = new Date();
+  const anoAtual = hoje.getFullYear();
+  const mesAtualNum = hoje.getMonth() + 1;
+  const mesBloqueado = (m: number, y: number) =>
+    y > anoAtual || (y === anoAtual && m > mesAtualNum);
   function setMesAno(novoMes: number, novoAno: number) {
+    if (mesBloqueado(novoMes, novoAno)) {
+      toast.error("Não é possível visualizar meses futuros.");
+      return;
+    }
     setMes(`${novoAno}-${String(novoMes).padStart(2, "0")}`);
   }
 
@@ -112,7 +121,13 @@ export function FinanceiroPanel({ escopo, titulo }: { escopo: Escopo; titulo: st
               <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {MESES_PT.map((nome, i) => (
-                  <SelectItem key={i} value={String(i + 1)}>{nome}</SelectItem>
+                  <SelectItem
+                    key={i}
+                    value={String(i + 1)}
+                    disabled={mesBloqueado(i + 1, ano)}
+                  >
+                    {nome}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
