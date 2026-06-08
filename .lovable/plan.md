@@ -1,127 +1,72 @@
-## Esclarecimentos importantes
+# Melhorias — Cadastro, Contratação e Pagamentos
 
-- **GitHub**: você decidiu pular. Quando quiser, basta abrir Plus (+) → GitHub → Connect; eu não controlo push nem crio branches no seu repositório, isso é feito pela integração nativa.
-- **Stripe**: fica para a Fase 2. Por enquanto mantemos o pagamento manual (com comprovante) que já existe, mas já preparo o perfil do aluno para receber os dados de assinatura depois.
-- **"Banco interno do Lovable"**: não existe. Todo dado de negócio já está no Supabase. O que usa localStorage é apenas a sessão do aluno/admin (que você confirmou estar ok).
+Foco desta rodada: itens 1, 2 e 3 da sua solicitação (cadastro com plano + fluxo "Quero esse plano" via WhatsApp). Os itens 4 e 5 (Pagamentos/Perfil) já existem hoje (`/aluno/pagamentos` e `/aluno/perfil`); só faço pequenos ajustes para refletir as mudanças (forma de pagamento + data do último pagamento na tela do aluno). Confirme se quer que eu expanda mais nesta rodada.
 
----
+## 1. Admin — Cadastrar aluno com plano obrigatório
 
-## Plano único — todas as correções e melhorias
+Arquivo: `src/routes/admin.alunos.tsx` (diálogo "Novo aluno").
 
-### 1. Banco de dados (migração única)
+- Carregar planos ativos com `useQuery(["planos-admin"], listPlanosAdmin)` filtrando `ativo === true`.
+- Adicionar `<Select>` **obrigatório** "Plano" no formulário, acima de Mensalidade.
+- Ao selecionar um plano:
+  - Preencher automaticamente `valor` com `preco_mensal` (editável caso o professor queira ajustar).
+  - Mostrar painel resumido abaixo do select com: descrição, lista de benefícios (chips) e o preço — para o professor visualizar limitações/recursos.
+- Botão "Criar" desabilitado enquanto `plano_id` estiver vazio.
+- Enviar `plano_id` em `createStudent(...)` (a função já aceita esse parâmetro — sem alteração de backend).
 
-Nova migration com:
+Sem mudança de schema. Campo `alunos.plano_id` já existe.
 
-- `aluno_anotacoes` (id, aluno_id, titulo, conteudo, autor, created_at, updated_at)
-- `treino_pdfs` (id, aluno_id OR treino_id, nome, descricao, storage_path, tamanho_bytes, created_at)
-- Novas colunas em `checkins`: `inicio_at`, `fim_at`, `duracao_segundos` (para hora de entrada/saída)
-- Novas colunas em `alunos`: `foto_url`, `data_cadastro` (default now)
-- Novas colunas em `treinos`: campos `sabado` e `domingo` (JSON com `focus` + `exercises`, igual aos outros dias)
-- Bucket Storage `treino-pdfs` (privado) + policies
+## 2. Landing — Fluxo "Quero esse plano" via WhatsApp
 
-GRANTs e RLS conforme padrão do projeto. Tudo Supabase, nada local.
+Arquivo: `src/routes/index.tsx`.
 
-### 2. Calendário: incluir Sábado e Domingo
+- Substituir `<Link to="/login">Quero esse plano</Link>` por um botão que abre um `<Dialog>` com mini-formulário:
+  - Nome completo (obrigatório)
+  - Telefone (obrigatório, com máscara simples)
+  - E-mail (obrigatório, validação básica)
+- Validar com `zod` no submit; exibir erros inline.
+- Ao clicar **Continuar**:
+  1. Buscar o WhatsApp do professor via novo server fn público `getAdminWhatsappFn` (lê `public.get_admin_whatsapp()` que já existe no banco).
+  2. Montar a mensagem exatamente no formato pedido, com o nome do plano clicado.
+  3. Abrir `https://wa.me/<numero>?text=<encoded>` em nova aba (`window.open`).
+  4. Fechar o diálogo e mostrar toast "Solicitação enviada — em breve o professor entrará em contato".
+- Nenhum registro de aluno é criado (atende item 3).
 
-- `src/lib/types.ts`: adicionar `"sabado"` e `"domingo"` ao tipo `DiaSemana`, labels e shorts.
-- `src/routes/aluno.index.tsx`: grid passa de `grid-cols-5` para `grid-cols-7` (responsivo).
-- `src/components/app/training-editor.tsx`: editor do professor mostra os 7 dias.
-- Migrar treinos existentes garantindo defaults para sábado/domingo (vazios).
+Novo arquivo: `src/lib/api/admin-contact.functions.ts` + wrapper em `src/lib/api/admin-contact.ts` expondo `getAdminWhatsapp()`. Sem autenticação (rota pública).
 
-### 3. Área do aluno reestruturada
+## 3. Aprovação manual
 
-Nova estrutura de rotas:
+Nada a fazer no fluxo automático — basta garantir que o lead só vai pelo WhatsApp (item 2) e o professor cria o aluno depois pelo painel (item 1). Vou adicionar uma frase discreta no diálogo: "Após confirmação, o professor criará seu acesso e enviará a senha."
 
-```text
-/aluno              -> Dashboard (resumo)
-/aluno/treinos      -> Treinos da semana (o que é a tela atual)
-/aluno/historico    -> já existe
-/aluno/perfil       -> Perfil completo
-/aluno/pagamentos   -> Histórico + status assinatura
-/aluno/anotacoes    -> Anotações do professor (read-only)
-```
+## 4. Ajustes na tela do aluno (pequenos)
 
-Bottom-nav do aluno (`src/routes/aluno.tsx`) ganha esses links.
+Arquivo: `src/routes/aluno.pagamentos.tsx`.
+- Mostrar **forma de pagamento** e **data do último pagamento** (já existem na tabela `pagamentos`; basta exibir).
+- Sem novos campos no banco.
 
-**Dashboard `/aluno`** (novo):
-- Card "Próximo treino" (próximo dia da semana com treino)
-- Card "Último treino realizado" (do histórico)
-- Card "Status da assinatura" (plano + próximo vencimento — placeholder Stripe na Fase 2)
-- Card "Frequência" (mantém o que já existe)
-- Atalho "Fazer check-in"
+## 5. Perfil
 
-**Perfil `/aluno/perfil`**:
-- Dados pessoais (nome, e-mail, telefone, data de cadastro)
-- Upload de foto de perfil (Supabase Storage, bucket `avatars`)
-- Bloco "Plano contratado" (nome, valor, data de contratação, vencimento)
-- Botão "Trocar plano" (abre seleção; na Fase 2 dispara Stripe; por ora gera solicitação manual)
+Já cobre tudo o que foi pedido (`aluno.perfil.tsx` mostra dados pessoais, plano, vencimento, PDFs). Anotações ficam em `/aluno/anotacoes`, histórico em `/aluno/historico`, pagamentos em `/aluno/pagamentos`. Sem mudanças nesta rodada.
 
-**Pagamentos `/aluno/pagamentos`**:
-- Lista os `pagamentos` do aluno (aprovado / pendente)
-- Mostra "Próxima cobrança" calculada do plano + último pagamento
+## Detalhes técnicos
 
-**Anotações `/aluno/anotacoes`**:
-- Lista somente leitura das anotações criadas pelo professor.
+- Telefone do WhatsApp do admin: já está em `admin_credentials.whatsapp` (formato `55DDDNNNNNNNNN`). A função `get_admin_whatsapp()` retorna esse valor — basta um server fn público que a invoque via `supabaseAdmin.rpc`.
+- Mensagem WhatsApp (template):
+  ```text
+  Olá! Tenho interesse em contratar um plano.
 
-### 4. Painel do professor — anotações e PDFs
+  Nome: {nome}
+  Telefone: {telefone}
+  E-mail: {email}
+  Plano escolhido: {plano.nome}
 
-**Anotações por aluno** em `/admin/aluno/$id`:
-- CRUD completo (criar/editar/excluir) sobre `aluno_anotacoes`
-- ServerFns com `requireAdminSession`
+  Gostaria de mais informações e dar continuidade à contratação.
 
-**PDFs de treino**:
-- No editor de treino (admin), botão "Anexar PDF" por aluno
-- Upload para bucket `treino-pdfs` via `supabase--storage_upload`
-- Lista de PDFs com nome + tamanho + excluir
-- Aluno vê na página do treino: visualizador embutido (`<iframe src=signed_url>`) + botão de download
+  Obrigado!
+  ```
+- Sem migrations. Sem mudanças em RLS. Sem dependências novas.
 
-### 5. Financeiro — bloquear meses futuros
+## Fora do escopo desta rodada
 
-- `src/components/app/financeiro-panel.tsx` e `src/routes/admin.financeiro.tsx`: o seletor de mês só permite mês atual e anteriores.
-- Aplicar em relatórios, filtros e dashboard.
-- Validação também no server (`financeiro.functions.ts`) — rejeita `mes > mês atual`.
-
-### 6. Check-in com entrada/saída
-
-- `createCheckinFn`: passa a registrar `inicio_at = now()`.
-- Nova `finishCheckinFn`: marca `fim_at` e calcula `duracao_segundos`.
-- Tela do aluno: botão "Iniciar treino" (check-in) e, ao concluir todos os exercícios do dia, "Finalizar treino" grava `fim_at` automaticamente.
-- Admin `/admin/checkins` mostra entrada, saída e duração.
-
-### 7. Stripe — placeholder agora (Fase 2 depois)
-
-- Perfil já mostra plano + valor + vencimento usando dados do `aluno_plano` e último `pagamento`.
-- Botões "Trocar plano" e "Cancelar" registram solicitação manual numa tabela `assinatura_solicitacoes` (admin trata).
-- Quando você liberar a Fase 2, eu ativo `enable_stripe_payments`, crio produtos a partir dos planos e ligo webhook em `/api/public/stripe-webhook` — os botões existentes passam a chamar Stripe Checkout.
-
-### 8. Qualidade / segurança
-
-- Todas as escritas via `createServerFn` + `supabaseAdmin` (já é o padrão)
-- RLS habilitado em todas as novas tabelas
-- Storage com signed URLs (PDFs privados)
-- Responsividade: testar grid de 7 dias e dashboard em mobile
-
----
-
-## Ordem de execução
-
-```text
-1. Migration (tabelas + colunas + bucket)
-2. Tipos + dias sábado/domingo no editor e na tela do aluno
-3. Bottom-nav do aluno + novas rotas (perfil, pagamentos, anotações, dashboard)
-4. Dashboard do aluno
-5. Perfil + upload de foto
-6. Anotações (admin CRUD + aluno read-only)
-7. PDFs de treino (upload admin + viewer aluno)
-8. Check-in com entrada/saída
-9. Filtro financeiro restrito ao mês atual
-10. Polimento responsivo + QA
-```
-
-## O que NÃO está neste plano
-
-- Stripe real (Fase 2, sob seu comando)
-- GitHub / criação da branch `gustavo` (você cuida na UI do Lovable)
-- Migrar sessão de localStorage para cookie httpOnly puro (você aprovou manter)
-
-Se aprovar, sigo nessa ordem. Se quiser inverter algo (ex: começar pelos PDFs), me diga antes.
+- Stripe (Fase 2, conforme combinado).
+- Persistência de "leads" no banco — fluxo é só lead → WhatsApp, sem registro.
