@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   ClipboardList,
   MapPin,
-  Building2,
   Sparkles,
   Settings,
   LogOut,
