@@ -2,7 +2,7 @@ import { dbError } from "@/lib/api/_errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { requireStudentSession } from "@/lib/student-auth.server";
+import { requireStudentSession, requireAdminOrStudentSessionFor } from "@/lib/student-auth.server";
 
 /** Student: own aluno row (full). */
 export const myProfileFn = createServerFn({ method: "GET" }).handler(async () => {
@@ -112,6 +112,7 @@ export const uploadMyAvatarFn = createServerFn({ method: "POST" })
 export const avatarSignedUrlFn = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ alunoId: z.string().min(1).max(120) }).parse(input))
   .handler(async ({ data }) => {
+    await requireAdminOrStudentSessionFor(data.alunoId);
     const { data: row } = await supabaseAdmin
       .from("alunos")
       .select("foto_url")

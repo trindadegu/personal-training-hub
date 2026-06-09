@@ -3,11 +3,13 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireAdminSession } from "@/lib/admin-auth.server";
+import { requireAdminOrStudentSessionFor } from "@/lib/student-auth.server";
 
 /** Aluno: estatísticas de frequência (semana, mês, sequência). */
 export const statsAlunoFn = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ alunoId: z.string().min(1).max(120) }).parse(input))
   .handler(async ({ data }) => {
+    await requireAdminOrStudentSessionFor(data.alunoId);
     // Aluno + meta
     const { data: aluno, error: eA } = await supabaseAdmin
       .from("alunos")

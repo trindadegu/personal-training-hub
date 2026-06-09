@@ -3,13 +3,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireAdminSession } from "@/lib/admin-auth.server";
-import { requireStudentSessionFor } from "@/lib/student-auth.server";
+import { requireStudentSessionFor, requireAdminOrStudentSessionFor } from "@/lib/student-auth.server";
 
 const AlunoIdSchema = z.object({ alunoId: z.string().min(1).max(120) });
 
 export const getTrainingFn = createServerFn({ method: "POST" })
   .inputValidator((input) => AlunoIdSchema.parse(input))
   .handler(async ({ data }) => {
+    await requireAdminOrStudentSessionFor(data.alunoId);
     const { data: row, error } = await supabaseAdmin
       .from("treinos")
       .select("treino")
@@ -43,6 +44,7 @@ export const saveTrainingFn = createServerFn({ method: "POST" })
 export const getProgressFn = createServerFn({ method: "POST" })
   .inputValidator((input) => AlunoIdSchema.parse(input))
   .handler(async ({ data }) => {
+    await requireAdminOrStudentSessionFor(data.alunoId);
     const { data: row, error } = await supabaseAdmin
       .from("progresso")
       .select("progresso")

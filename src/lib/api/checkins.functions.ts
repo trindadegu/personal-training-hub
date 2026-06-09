@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireAdminSession } from "@/lib/admin-auth.server";
-import { requireStudentSessionFor } from "@/lib/student-auth.server";
+import { requireStudentSessionFor, requireAdminOrStudentSessionFor } from "@/lib/student-auth.server";
 import { haversineMeters } from "@/lib/api/academias.functions";
 
 const CheckinSchema = z.object({
@@ -106,6 +106,7 @@ export const listCheckinsAdminFn = createServerFn({ method: "POST" })
 export const lastCheckinForStudentFn = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ alunoId: z.string().min(1).max(120) }).parse(input))
   .handler(async ({ data }) => {
+    await requireAdminOrStudentSessionFor(data.alunoId);
     const { data: row, error } = await supabaseAdmin
       .from("checkins")
       .select("id, aluno_id, aluno_nome, gym_name, gym_address, distance_m, created_at")
@@ -120,6 +121,7 @@ export const lastCheckinForStudentFn = createServerFn({ method: "POST" })
 export const checkinTodayFn = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ alunoId: z.string().min(1).max(120) }).parse(input))
   .handler(async ({ data }) => {
+    await requireAdminOrStudentSessionFor(data.alunoId);
     const start = new Date();
     start.setHours(0, 0, 0, 0);
     const { data: row, error } = await supabaseAdmin
