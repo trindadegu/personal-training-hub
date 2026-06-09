@@ -2,6 +2,7 @@
 // Do NOT import this file from client code; the `.server.ts` extension is
 // blocked from the client bundle.
 import { useSession } from "@tanstack/react-start/server";
+import { getAdminSession } from "@/lib/admin-auth.server";
 
 interface StudentSessionData {
   alunoId?: string;
@@ -10,7 +11,8 @@ interface StudentSessionData {
 }
 
 function sessionPassword(): string {
-  const base = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9obmx3aHByeHpham1zcndpc3ZnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ1NTk4NiwiZXhwIjoyMDk1MDMxOTg2fQ.jIR8EbXlHv9SWxtBmLgICXjcqFimWmQhCmlyLjF53M4";
+  const base = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!base) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set");
   return `atlantida-student:${base}`.padEnd(48, "0");
 }
 
@@ -52,4 +54,16 @@ export async function requireStudentSessionFor(alunoId: string) {
     throw new Response("Forbidden", { status: 403 });
   }
   return session;
+}
+
+/**
+ * Allows access if the caller is the matching student OR an authenticated admin.
+ * Use for endpoints that both the student themselves and the admin UI need.
+ */
+export async function requireAdminOrStudentSessionFor(alunoId: string) {
+  const admin = await getAdminSession();
+  if (admin.data?.username) return { kind: "admin" as const };
+  const student = await getStudentSession();
+  if (student.data?.alunoId === alunoId) return { kind: "student" as const };
+  throw new Response("Unauthorized", { status: 401 });
 }
