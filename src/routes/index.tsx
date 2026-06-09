@@ -25,6 +25,47 @@ import { formatBRL } from "@/lib/api/config";
 
 export const Route = createFileRoute("/")({
   component: Index,
+  head: () => ({
+    meta: [
+      { title: "Acessoria Atlântida — Treinos personalizados e check-in na academia" },
+      {
+        name: "description",
+        content:
+          "Treinos personalizados, check-in com GPS na academia e histórico mensal. Conheça os planos da Acessoria Atlântida.",
+      },
+      { property: "og:title", content: "Acessoria Atlântida — Treinos personalizados" },
+      {
+        property: "og:description",
+        content:
+          "Treinos personalizados, check-in com GPS e histórico mensal na palma da mão.",
+      },
+      { property: "og:url", content: "https://acessoriaatlantida.lovable.app/" },
+      { property: "og:type", content: "website" },
+    ],
+    links: [{ rel: "canonical", href: "https://acessoriaatlantida.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "Acessoria Atlântida",
+          url: "https://acessoriaatlantida.lovable.app/",
+          description:
+            "Acessoria esportiva com treinos personalizados, check-in na academia e acompanhamento mensal.",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Acessoria Atlântida",
+          url: "https://acessoriaatlantida.lovable.app/",
+        }),
+      },
+    ],
+  }),
 });
 
 function Index() {
