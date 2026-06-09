@@ -12,6 +12,13 @@ import { myHasOverdueFn } from "@/lib/api/checkout.functions";
 
 export const Route = createFileRoute("/aluno")({
   component: AlunoLayout,
+  head: () => ({
+    meta: [
+      { title: "Meu painel — Acessoria Atlântida" },
+      { name: "description", content: "Área do aluno: treinos, check-in e pagamentos." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
 });
 
 function AlunoLayout() {
