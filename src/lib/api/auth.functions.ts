@@ -1,8 +1,20 @@
+import { createClient } from '@supabase/supabase-js';
 import { dbError } from "@/lib/api/_errors";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { getAdminSession, requireAdminSession } from "@/lib/admin-auth.server";
+
+// =============================================
+// Cliente Supabase hardcoded (APENAS DESENVOLVIMENTO LOCAL)
+// =============================================
+const supabaseAdmin = createClient(
+  'https://ohnlwhprxzajmsrwisvg.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9obmx3aHByeHpham1zcndpc3ZnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ1NTk4NiwiZXhwIjoyMDk1MDMxOTg2fQ.jIR8EbXlHv9SWxtBmLgICXjcqFimWmQhCmlyLjF53M4'
+);
+
+// =============================================
+// Funções de autenticação e admin
+// =============================================
 
 export const loginAdminFn = createServerFn({ method: "POST" })
   .inputValidator((input) =>

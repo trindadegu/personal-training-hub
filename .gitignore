@@ -35,3 +35,17 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Variáveis de ambiente (arquivos com chaves reais)
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# Outros arquivos comuns de ambiente
+*.env
+*.key
+*.pem
+
+src/integrations/supabase/client.server.ts
