@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireAdminSession } from "@/lib/admin-auth.server";
-import { requireStudentSessionFor } from "@/lib/student-auth.server";
+import { requireStudentSessionFor, requireAdminOrStudentSessionFor } from "@/lib/student-auth.server";
 
 const ExSchema = z.object({
   name: z.string().min(1).max(300),
@@ -61,6 +61,7 @@ export const listHistoricoFn = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data }) => {
+    await requireAdminOrStudentSessionFor(data.alunoId);
     const { data: rows, error } = await supabaseAdmin
       .from("treino_historico")
       .select("*")
@@ -75,6 +76,7 @@ export const listHistoricoFn = createServerFn({ method: "POST" })
 export const listHistoricoAllFn = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ alunoId: z.string().min(1).max(120) }).parse(input))
   .handler(async ({ data }) => {
+    await requireAdminOrStudentSessionFor(data.alunoId);
     const { data: rows, error } = await supabaseAdmin
       .from("treino_historico")
       .select("*")
