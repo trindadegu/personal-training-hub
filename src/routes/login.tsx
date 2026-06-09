@@ -17,6 +17,23 @@ import { setAdminSession, setStudentSession } from "@/lib/session";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
+  head: () => ({
+    meta: [
+      { title: "Entrar — Acessoria Atlântida" },
+      {
+        name: "description",
+        content:
+          "Acesse sua conta de aluno ou de professor na Acessoria Atlântida para ver treinos, check-ins e pagamentos.",
+      },
+      { property: "og:title", content: "Entrar — Acessoria Atlântida" },
+      {
+        property: "og:description",
+        content: "Acesse sua conta de aluno ou professor.",
+      },
+      { property: "og:url", content: "https://acessoriaatlantida.lovable.app/login" },
+    ],
+    links: [{ rel: "canonical", href: "https://acessoriaatlantida.lovable.app/login" }],
+  }),
 });
 
 function LoginPage() {

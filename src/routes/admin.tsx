@@ -28,6 +28,13 @@ export const Route = createFileRoute("/admin")({
     }
     return { username: me.username };
   },
+  head: () => ({
+    meta: [
+      { title: "Painel do professor — Acessoria Atlântida" },
+      { name: "description", content: "Área restrita para administração de alunos e treinos." },
+      { name: "robots", content: "noindex, nofollow" },
+    ],
+  }),
   component: AdminLayout,
 });
 

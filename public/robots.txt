@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /aluno
+Disallow: /api/
+
+Sitemap: https://acessoriaatlantida.lovable.app/sitemap.xml
