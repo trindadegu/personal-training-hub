@@ -1,68 +1,82 @@
+## Plano: migrar pra seu Supabase + Stripe teste + rodar local
 
-## Plano: publicar o site com pagamento em modo teste
+### Ordem de execução (importante seguir nessa ordem)
 
-### 1. GitHub (nenhuma ação necessária)
-Você já conectou. O sync é bidirecional e automático — toda mudança feita aqui já está no seu repositório em tempo real. Pode verificar abrindo o repo no GitHub.
+### 1. Backup do banco atual (Cloud)
+Antes de qualquer coisa, garantir backup:
+- **View Backend → Database → Tables**
+- Pra cada tabela: `academias`, `admin_credentials`, `aluno_notas`, `alunos`, `checkins`, `configuracoes`, `despesas_recorrentes`, `financeiro_lancamentos`, `pagamentos`, `planos`, `progresso`, `treino_historico`, `treino_pdfs`, `treinos`, `treinos_padroes` → botão **Export → CSV**
+- Guardar a pasta com todos os CSVs
 
-### 2. Backup do banco (CSVs)
-Antes de mexer em qualquer coisa, exportar dados atuais:
-1. Abrir **Cloud → Database → Tables** (botão View Backend)
-2. Pra cada tabela importante (`alunos`, `pagamentos`, `planos`, `academias`, `financeiro_lancamentos`, `checkins`, etc.) clicar na tabela → botão **Export → CSV**
-3. Guardar os arquivos localmente
+### 2. Aplicar schema no seu Supabase próprio
+- Você me confirma quando criou o projeto novo em supabase.com
+- Eu peço via formulário seguro 3 secrets temporárias (só pra eu rodar a migration de schema no seu projeto novo):
+  - `MY_SUPABASE_URL` (https://xxx.supabase.co)
+  - `MY_SUPABASE_ANON_KEY`
+  - `MY_SUPABASE_SERVICE_ROLE_KEY`
+- Eu gero um SQL único consolidando todas as migrations atuais (tabelas + RLS + GRANTs + funções: `set_admin_password`, `verify_admin_login`, `get_admin_whatsapp`, `set_updated_at` + bucket `treino-pdfs`)
+- Você roda esse SQL no **SQL Editor** do seu Supabase (eu te entrego o arquivo .sql pronto pra copiar/colar)
+- Você cria o bucket de storage `treino-pdfs` (privado) em Storage → New bucket
 
-Sobre "mover pra Supabase próprio": não é suportado pelo Lovable após Cloud ter sido adicionado. O backend continua sendo o Cloud. O que você tem garantido:
-- O código (incluindo `supabase/migrations/`) vai pro seu GitHub automaticamente
-- CSVs como backup de dados
-- Se um dia sair do Lovable, é possível recriar manualmente noutra conta Supabase aplicando as migrations + importando os CSVs
+### 3. Importar os CSVs no seu Supabase
+- No Supabase Dashboard: Table Editor → cada tabela → **Insert → Import data from CSV**
+- Ordem importa por causa das FKs: `academias` → `planos` → `alunos` → resto
+- O `admin_credentials` provavelmente vai precisar do seu admin atual; te oriento
 
-### 3. Reconectar Stripe em modo teste
-O código atual (`src/lib/stripe.server.ts`, webhook em `src/routes/api/public/payments/webhook.ts`) espera estas 3 secrets de servidor:
+### 4. Trocar as envs do projeto pra apontar pro seu Supabase
+- Atualizar no Lovable Cloud as secrets:
+  - `SUPABASE_URL` → seu URL
+  - `SUPABASE_PUBLISHABLE_KEY` → sua anon key
+  - `SUPABASE_SERVICE_ROLE_KEY` → seu service role
+  - `VITE_SUPABASE_URL` → seu URL
+  - `VITE_SUPABASE_PUBLISHABLE_KEY` → sua anon key
+- Atenção: o `src/integrations/supabase/client.ts` e `types.ts` são gerados pelo Cloud. Vou ter que ajustar `client.ts` manualmente pra não quebrar (deixar idêntico mas apontando pras envs novas — sem regeneração automática).
 
-- `STRIPE_SANDBOX_API_KEY` — chave secreta de teste do Stripe (`sk_test_...`)
-- `PAYMENTS_SANDBOX_WEBHOOK_SECRET` — secret do endpoint webhook em modo teste (`whsec_...`)
-- `LOVABLE_API_KEY` — já existe, não mexer
+### 5. Reativar Stripe em modo teste
+Você já tem `STRIPE_SANDBOX_API_KEY` e `PAYMENTS_SANDBOX_WEBHOOK_SECRET` salvos no Cloud. Se forem chaves novas, eu peço pra atualizar via formulário seguro.
+- Webhook URL pro Stripe Dashboard (Test mode → Developers → Webhooks → Add endpoint):
+  - `https://acessoriaatlantida.lovable.app/api/public/payments/webhook?env=sandbox`
+  - Evento: `checkout.session.completed`
+  - Copia o signing secret (`whsec_...`) e me passa
+- Confirmar que `.env.development` tem `VITE_PAYMENTS_CLIENT_TOKEN=pk_test_...` (chave pública de teste)
 
-A chave **pública** de teste (`pk_test_...`) já está em `.env.development` como `VITE_PAYMENTS_CLIENT_TOKEN` — o banner laranja "Modo de teste" e o checkout embed dependem dela. Vou confirmar que continua válida; se não estiver, atualizo.
+### 6. Rodar local (VSCode) sem erro de "permission denied"
+Te entrego um `.env.local` modelo com todas as variáveis. Você só preenche os valores. Vai conter:
+```
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_PUBLISHABLE_KEY=...
+VITE_PAYMENTS_CLIENT_TOKEN=pk_test_...
+SUPABASE_URL=...
+SUPABASE_PUBLISHABLE_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...   # ← essa é a chave que resolve "permission denied"
+LOVABLE_API_KEY=...             # pega no painel Lovable
+STRIPE_SANDBOX_API_KEY=sk_test_...
+PAYMENTS_SANDBOX_WEBHOOK_SECRET=whsec_...
+SESSION_SECRET=<gerar string aleatória>
+```
+**Por que o erro acontecia:** o app usa o cliente admin (service role) pra contornar RLS. Sem `SUPABASE_SERVICE_ROLE_KEY` no .env, as queries caem no cliente público que não tem GRANTs → "permission denied for table alunos". Com o service role no .env (que só existe na sua conta Supabase), o erro some.
 
-**Passos:**
-1. Você obtém no painel do Stripe (modo Test, canto superior direito ligado):
-   - Developers → API keys → **Secret key** de teste (`sk_test_...`)
-   - Developers → Webhooks → Add endpoint:
-     - URL: `https://acessoriaatlantida.lovable.app/api/public/payments/webhook?env=sandbox`
-     - Eventos: `checkout.session.completed`
-     - Copiar o **Signing secret** (`whsec_...`)
-2. Eu peço as duas secrets via formulário seguro (`STRIPE_SANDBOX_API_KEY` e `PAYMENTS_SANDBOX_WEBHOOK_SECRET`)
-3. Você cola os valores no formulário
-4. Eu valido que o checkout funciona
+Comandos pra rodar local:
+```
+bun install
+bun dev
+```
 
-### 4. Publicar
-Depois das secrets configuradas:
-1. Clicar em **Publish** (canto superior direito)
-2. O site vai pra `https://acessoriaatlantida.lovable.app` em modo teste
-3. Banner laranja "Modo de teste" continua visível pros alunos saberem
-4. Nenhum dinheiro real é cobrado
+### 7. Publicar e testar
+- Botão **Publish** no canto superior direito
+- Testar com cartão `4242 4242 4242 4242`, validade `12/30`, CVC `123`
+- Fatura deve marcar como paga em ~2s via webhook
 
-### 5. Como testar o fluxo de pagamento
-Cartões de teste do Stripe (qualquer validade futura, qualquer CVC, qualquer CEP):
+### O que eu vou fazer no modo build
+1. Pedir as 3 secrets temporárias do seu Supabase via formulário
+2. Gerar arquivo .sql consolidado com todo o schema atual pra você rodar no SQL Editor
+3. Gerar arquivo `.env.local.example` na raiz do projeto
+4. Substituir as envs do Cloud apontando pro seu Supabase novo (após confirmação que os dados foram importados)
+5. Ajustar `src/integrations/supabase/client.ts` se necessário
+6. Atualizar webhook secret do Stripe quando você me passar o novo `whsec_`
 
-| Cenário | Cartão |
-|---|---|
-| **Sucesso** | `4242 4242 4242 4242` |
-| Recusado | `4000 0000 0000 0002` |
-| Requer autenticação 3DS | `4000 0025 0000 3155` |
-
-**Fluxo de teste end-to-end:**
-1. Logar como aluno (criar um aluno admin → vincular plano → gerar fatura pendente)
-2. Aluno entra em **Pagamentos** → clica **Pagar agora** numa fatura pendente
-3. Modal abre o checkout Stripe embedado
-4. Usar `4242 4242 4242 4242`, validade `12/30`, CVC `123`
-5. Confirmar pagamento → redirect pra `/aluno/pagamentos?paid=1` → toast "Pagamento processado"
-6. Em ~2s a fatura deve mudar pra "Pago" (webhook marca + cria lançamento financeiro)
-7. Verificar no admin: **Financeiro** mostra a receita "Mensalidade ... (Stripe)"
-
-**Se a fatura não marcar como paga em 10s:** o webhook não chegou. Conferir em Stripe Dashboard → Developers → Webhooks → seu endpoint → aba "Events" pra ver se o evento foi entregue com 200. Se 4xx, a `PAYMENTS_SANDBOX_WEBHOOK_SECRET` está errada.
-
-### Resumo do que eu vou fazer (modo build)
-- Solicitar as 2 secrets de servidor via formulário
-- Confirmar que `.env.development` está com `pk_test_...` válido
-- (Sem mudanças de código — a integração já está montada, só precisa das secrets)
+### Riscos a saber
+- **Não tem rollback automático** — depois que trocar as envs pro seu Supabase, o app só funciona se os dados estiverem importados
+- **Cloud continua "conectado"** ao projeto Lovable mesmo apontando pra outro Supabase; é só um app usando outras credenciais
+- **Auth Users**: usuários do `auth.users` do Cloud antigo não migram (admin_credentials é tabela própria então OK, mas se houver qualquer login Supabase Auth, perde)
+- **Storage**: arquivos do bucket `treino-pdfs` precisam ser baixados/reuploaded manualmente se houver PDFs salvos
