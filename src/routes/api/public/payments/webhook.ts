@@ -105,3 +105,4 @@ export const Route = createFileRoute("/api/public/payments/webhook")({
     },
   },
 });
+

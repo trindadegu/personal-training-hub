@@ -1,0 +1,8 @@
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
+  "functions": {
+    "dist/server/index.js": {
+      "runtime": "nodejs22.x"
+    }
+  }
+}
