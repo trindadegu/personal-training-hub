@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Dumbbell, MapPin, LineChart, ArrowRight, Check, MessageCircle } from "lucide-react";
+import { Dumbbell, MapPin, LineChart, ArrowRight, Check, MessageCircle, Star, Users, Award, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -39,10 +39,14 @@ export const Route = createFileRoute("/")({
         content:
           "Treinos personalizados, check-in com GPS e histórico mensal na palma da mão.",
       },
-      { property: "og:url", content: "https://acessoriaatlantida.lovable.app/" },
+      // ATUALIZE A URL AQUI para o seu domínio da Vercel
+      { property: "og:url", content: "https://personal-training-hub-six.vercel.app/" },
       { property: "og:type", content: "website" },
     ],
-    links: [{ rel: "canonical", href: "https://acessoriaatlantida.lovable.app/" }],
+    links: [
+      // ATUALIZE O CANONICAL AQUI
+      { rel: "canonical", href: "https://personal-training-hub-six.vercel.app/" }
+    ],
     scripts: [
       {
         type: "application/ld+json",
@@ -50,18 +54,9 @@ export const Route = createFileRoute("/")({
           "@context": "https://schema.org",
           "@type": "Organization",
           name: "Acessoria Atlântida",
-          url: "https://acessoriaatlantida.lovable.app/",
+          url: "https://personal-training-hub-six.vercel.app/",
           description:
             "Acessoria esportiva com treinos personalizados, check-in na academia e acompanhamento mensal.",
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "WebSite",
-          name: "Acessoria Atlântida",
-          url: "https://acessoriaatlantida.lovable.app/",
         }),
       },
     ],
@@ -81,6 +76,7 @@ function Index() {
   const [leadTel, setLeadTel] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
   const [sending, setSending] = useState(false);
+
   useEffect(() => {
     if (getAdminSession()) setSessionTarget("/admin");
     else if (getStudentSession()) setSessionTarget("/aluno");
@@ -154,6 +150,7 @@ function Index() {
       </header>
 
       <main className="container mx-auto px-6 pb-20 pt-12 md:pt-24">
+        {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -191,6 +188,121 @@ function Index() {
           </div>
         </motion.div>
 
+        {/* Seção de apresentação do personal */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: 0.6 }}
+          className="mx-auto mt-28 max-w-5xl rounded-3xl bg-card p-6 shadow-[var(--shadow-lg)] md:p-10"
+        >
+          <div className="flex flex-col items-center gap-8 md:flex-row md:gap-12">
+            <div className="relative h-48 w-48 flex-shrink-0 overflow-hidden rounded-full border-4 border-primary/30 shadow-xl md:h-64 md:w-64">
+              <img
+                src="/personal.jpg"
+                alt="Professor Italo Ruan"
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "https://placehold.co/400x400?text=Personal";
+                }}
+              />
+            </div>
+            <div className="flex-1 text-center md:text-left">
+              <h2 className="font-display text-3xl font-bold">Italo Ruan</h2>
+              <p className="mt-2 text-lg text-primary">Personal Trainer | Especialista em Treino Funcional</p>
+              <div className="mt-4 flex flex-wrap justify-center gap-4 md:justify-start">
+                <div className="flex items-center gap-2">
+                  <Award className="h-5 w-5 text-primary" />
+                  <span className="text-sm">CREF 123456-F</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-primary" />
+                  <span className="text-sm">+5 anos de experiência</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-primary" />
+                  <span className="text-sm">+150 alunos atendidos</span>
+                </div>
+              </div>
+              <p className="mt-4 text-muted-foreground">
+                Graduado em Educação Física, especialista em treinamento personalizado e reabilitação esportiva. Meu método une ciência e prática para resultados reais.
+              </p>
+            </div>
+          </div>
+        </motion.section>
+
+        {/* Seção de resultados / depoimentos com imagens de antes e depois */}
+        <motion.section
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="mx-auto mt-20 max-w-6xl"
+        >
+          <div className="text-center">
+            <span className="inline-flex rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">
+              Resultados reais
+            </span>
+            <h2 className="mt-4 font-display text-3xl font-bold md:text-4xl">
+              Transformações que inspiram
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-muted-foreground">
+              Histórias reais de alunos que alcançaram seus objetivos com nossa metodologia.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              {
+                nome: "Carlos M.",
+                resultado: "Perdeu 12kg em 3 meses",
+                depoimento: "O treino mudou minha vida. Nunca me senti tão disposto!",
+                avaliacao: 5,
+                imagemAntes: "/antes1.jpg",
+                imagemDepois: "/depois1.jpg",
+              },
+              {
+                nome: "Fernanda L.",
+                resultado: "Ganhou massa muscular e definição",
+                depoimento: "Acompanhamento incrível, sempre ajustando os treinos.",
+                avaliacao: 5,
+                imagemAntes: "/antes2.jpg",
+                imagemDepois: "/depois2.jpg",
+              },
+              {
+                nome: "Rafael S.",
+                resultado: "Corrigiu postura e eliminou dores nas costas",
+                depoimento: "Profissional muito atencioso e competente.",
+                avaliacao: 5,
+                imagemAntes: "/antes3.jpg",
+                imagemDepois: "/depois3.jpg",
+              },
+            ].map((dep, i) => (
+              <div
+                key={i}
+                className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-sm)] transition hover:shadow-[var(--shadow-md)]"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1 text-amber-500">
+                    {Array.from({ length: dep.avaliacao }).map((_, idx) => (
+                      <Star key={idx} className="h-4 w-4 fill-amber-500" />
+                    ))}
+                  </div>
+                  <span className="text-xs text-muted-foreground">Antes/Depois</span>
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <img src={dep.imagemAntes} alt="Antes" className="rounded-lg object-cover w-full h-32" />
+                  <img src={dep.imagemDepois} alt="Depois" className="rounded-lg object-cover w-full h-32" />
+                </div>
+                <p className="mt-4 italic text-muted-foreground">"{dep.depoimento}"</p>
+                <div className="mt-4">
+                  <p className="font-semibold">{dep.nome}</p>
+                  <p className="text-sm text-primary">{dep.resultado}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.section>
+
+        {/* Seção de diferenciais */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -227,6 +339,7 @@ function Index() {
           ))}
         </motion.div>
 
+        {/* Planos - mantido igual */}
         {planos.length > 0 && (
           <motion.section
             id="planos"
@@ -298,6 +411,7 @@ function Index() {
         )}
       </main>
 
+      {/* Lead Dialog */}
       <Dialog open={leadOpen} onOpenChange={setLeadOpen}>
         <DialogContent>
           <DialogHeader>

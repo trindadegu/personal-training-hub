@@ -30,9 +30,9 @@ export const Route = createFileRoute("/login")({
         property: "og:description",
         content: "Acesse sua conta de aluno ou professor.",
       },
-      { property: "og:url", content: "https://acessoriaatlantida.lovable.app/login" },
+      { property: "og:url", content: "https://personal-training-hub-six.vercel.app/login" },
     ],
-    links: [{ rel: "canonical", href: "https://acessoriaatlantida.lovable.app/login" }],
+    links: [{ rel: "canonical", href: "https://personal-training-hub-six.vercel.app/login" }],
   }),
 });
 
