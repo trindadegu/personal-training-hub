@@ -1,8 +1,9 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }],
+  "rewrites": [{ "source": "/(.*)", "destination": "/api/server" }],
   "functions": {
-    "dist/server/index.js": {
-      "runtime": "nodejs22.x"
+    "dist/server/server.js": {
+      "runtime": "nodejs22.x",
+      "maxDuration": 10
     }
   }
 }
