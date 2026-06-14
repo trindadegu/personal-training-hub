@@ -1,9 +1,17 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/api/server" }],
-  "functions": {
-    "dist/server/server.js": {
-      "runtime": "nodejs22.x",
-      "maxDuration": 10
+  "builds": [
+    {
+      "src": "dist/server/server.js",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["dist/client/**"] }
+    },
+    {
+      "src": "dist/client/**",
+      "use": "@vercel/static"
     }
-  }
+  ],
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "dist/server/server.js" }
+  ]
 }
