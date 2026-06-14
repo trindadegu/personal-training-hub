@@ -18,21 +18,30 @@ export function getConnectionApiKey(env: StripeEnv): string {
 
 export function createStripeClient(env: StripeEnv): Stripe {
   const connectionApiKey = getConnectionApiKey(env);
-  const lovableApiKey = getEnv("LOVABLE_API_KEY");
+  const lovableApiKey = process.env.LOVABLE_API_KEY;
+
+  // Quando rodando dentro do Lovable, usa o gateway interno.
+  // Fora do Lovable (local/Cloudflare/Vercel), fala direto com api.stripe.com.
+  if (lovableApiKey) {
+    return new Stripe(connectionApiKey, {
+      apiVersion: "2026-03-25.dahlia" as any,
+      httpClient: Stripe.createFetchHttpClient(((input: any, init?: RequestInit) => {
+        const gatewayUrl = String(input).replace("https://api.stripe.com", GATEWAY_STRIPE_BASE);
+        return fetch(gatewayUrl, {
+          ...init,
+          headers: {
+            ...Object.fromEntries(new Headers(init?.headers).entries()),
+            "X-Connection-Api-Key": connectionApiKey,
+            "Lovable-API-Key": lovableApiKey,
+          },
+        });
+      }) as typeof fetch),
+    });
+  }
 
   return new Stripe(connectionApiKey, {
     apiVersion: "2026-03-25.dahlia" as any,
-    httpClient: Stripe.createFetchHttpClient(((input: any, init?: RequestInit) => {
-      const gatewayUrl = String(input).replace("https://api.stripe.com", GATEWAY_STRIPE_BASE);
-      return fetch(gatewayUrl, {
-        ...init,
-        headers: {
-          ...Object.fromEntries(new Headers(init?.headers).entries()),
-          "X-Connection-Api-Key": connectionApiKey,
-          "Lovable-API-Key": lovableApiKey,
-        },
-      });
-    }) as typeof fetch),
+    httpClient: Stripe.createFetchHttpClient(),
   });
 }
 
