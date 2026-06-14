@@ -1,23 +1,28 @@
 import dotenv from "dotenv";
 dotenv.config();
-import { defineConfig } from "@lovable.dev/vite-tanstack-config";
-import { nitro } from "nitro/vite";       // <-- importe o plugin nitro
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { resolve } from "path";
 
 export default defineConfig({
-  tanstackStart: {
-    server: { entry: "server" },
+  plugins: [
+    tailwindcss(),          // <-- ADICIONE ESTA LINHA
+    tanstackStart({
+      server: { entry: "server" },
+    }),
+    react(),
+  ],
+  resolve: {
+    alias: {
+      "@": resolve(__dirname, "./src"),
+    },
   },
-  // Adicione a seção `vite` com o plugin nitro
-  vite: {
-    plugins: [
-      nitro({
-        preset: "vercel",
-        output: {
-          dir: ".vercel/output",
-          serverDir: ".vercel/output/functions/__server.func",
-          publicDir: ".vercel/output/static",
-        },
-      }),
-    ],
+  ssr: {
+    noExternal: ["tslib"],
+  },
+  optimizeDeps: {
+    include: ["tslib"],
   },
 });
