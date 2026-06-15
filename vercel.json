@@ -1,13 +1,8 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "devCommand": "npm run dev",
   "installCommand": "npm install --legacy-peer-deps",
-  "framework": null,
-  "functions": {
-    ".vercel/output/functions/__server.func": {
-      "runtime": "nodejs22.x",
-      "includeFiles": ["node_modules/tslib/**"]
-    }
-  }
+  "framework": null
 }
