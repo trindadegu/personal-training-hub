@@ -34,7 +34,7 @@ import "../_libs/supabase__phoenix.mjs";
 import "../_libs/supabase__storage-js.mjs";
 import "../_libs/iceberg-js.mjs";
 import "../_libs/supabase__auth-js.mjs";
-import "tslib";
+import "./tslib.js";
 import "../_libs/supabase__functions-js.mjs";
 const listPagamentosFn_createServerFn_handler = createServerRpc({
   id: "0eb7b6a9c4fac9ac77f8f86f40dffe2fbad1ef5ffe618d4f2312c8e8e249d47b",

@@ -34,7 +34,7 @@ import "../_libs/supabase__phoenix.mjs";
 import "../_libs/supabase__storage-js.mjs";
 import "../_libs/iceberg-js.mjs";
 import "../_libs/supabase__auth-js.mjs";
-import "tslib";
+import "./tslib.js";
 import "../_libs/supabase__functions-js.mjs";
 const AcademiaSchema = objectType({
   nome: stringType().min(1).max(200),

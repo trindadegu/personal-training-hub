@@ -34,7 +34,7 @@ import "../_libs/supabase__phoenix.mjs";
 import "../_libs/supabase__storage-js.mjs";
 import "../_libs/iceberg-js.mjs";
 import "../_libs/supabase__auth-js.mjs";
-import "tslib";
+import "./tslib.js";
 import "../_libs/supabase__functions-js.mjs";
 const listNotasFn_createServerFn_handler = createServerRpc({
   id: "727f09755b380c9d6539af17acc2286b7c6ed99cb52cc56583399eb6df45b54b",

@@ -32,7 +32,7 @@ import "../_libs/supabase__phoenix.mjs";
 import "../_libs/supabase__storage-js.mjs";
 import "../_libs/iceberg-js.mjs";
 import "../_libs/supabase__auth-js.mjs";
-import "tslib";
+import "./tslib.js";
 import "../_libs/supabase__functions-js.mjs";
 const getAdminWhatsappFn_createServerFn_handler = createServerRpc({
   id: "1db090d5281dab0f07bc638b19bfa915393c3520fd650392ea1b685b567ad40b",

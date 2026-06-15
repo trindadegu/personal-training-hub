@@ -35,7 +35,7 @@ import "../_libs/supabase__phoenix.mjs";
 import "../_libs/supabase__storage-js.mjs";
 import "../_libs/iceberg-js.mjs";
 import "../_libs/supabase__auth-js.mjs";
-import "tslib";
+import "./tslib.js";
 import "../_libs/supabase__functions-js.mjs";
 const statsAlunoFn_createServerFn_handler = createServerRpc({
   id: "bca07238cfb0c6832dd1fbe6f093d46b8db18241f840a38d109564e067e8927e",

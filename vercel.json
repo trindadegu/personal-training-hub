@@ -4,11 +4,11 @@
   "framework": null,
   "outputDirectory": ".vercel/output",
   "functions": {
-      "api/**/*.js": {
-          "includeFiles": "tslib/**/*"
-      },
-      "__nitro/**/*.js": {
-          "includeFiles": "tslib/**/*"
-      }
+    "__server.func/**/*.js": {
+      "includeFiles": "tslib.js"
+    },
+    "__nitro/**/*.js": {
+      "includeFiles": "tslib.js"
+    }
   }
 }

@@ -54,7 +54,7 @@ import "../_libs/radix-ui__react-use-previous.mjs";
 import "../_libs/@radix-ui/react-visually-hidden+[...].mjs";
 import "../_libs/aria-hidden.mjs";
 import "../_libs/react-remove-scroll.mjs";
-import "tslib";
+import "./tslib.js";
 import "../_libs/react-remove-scroll-bar.mjs";
 import "../_libs/react-style-singleton.mjs";
 import "../_libs/get-nonce.mjs";
