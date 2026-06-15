@@ -1,5 +1,5 @@
 import { r as reactExports } from "./react.mjs";
-import { __assign, __rest } from "tslib";
+import { __assign, __rest } from "./tslib/tslib.es6.js";
 function ItoI(a) {
   return a;
 }

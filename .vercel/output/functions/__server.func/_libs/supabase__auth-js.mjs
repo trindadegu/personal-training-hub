@@ -1,4 +1,4 @@
-import { __rest } from "tslib";
+import { __rest } from "./tslib/tslib.es6.js";
 const version = "2.106.2";
 const AUTO_REFRESH_TICK_DURATION_MS = 30 * 1e3;
 const AUTO_REFRESH_TICK_THRESHOLD = 3;

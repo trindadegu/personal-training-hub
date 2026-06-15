@@ -25,4 +25,12 @@ export default defineConfig({
   optimizeDeps: {
     include: ['tslib'],
   },
+  build: {
+    rollupOptions: {
+      external: [],  // força nenhum módulo a ser externalizado
+      output: {
+        inlineDynamicImports: true,
+      },
+    },
+  },
 });
