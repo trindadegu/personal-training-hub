@@ -1,14 +1,5 @@
 {
   "buildCommand": "npm run build",
   "installCommand": "npm install --legacy-peer-deps",
-  "framework": null,
-  "outputDirectory": ".vercel/output",
-  "functions": {
-    "__server.func/**/*.js": {
-      "includeFiles": "tslib.js"
-    },
-    "__nitro/**/*.js": {
-      "includeFiles": "tslib.js"
-    }
-  }
+  "outputDirectory": ".output"
 }

@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -10,24 +11,34 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     tanstackStart({
-      server: { entry: "server" },
+      server: {
+        entry: "server",
+      },
+      nitro: {
+        preset: "vercel",
+        noExternals: ["tslib"],
+        inlineDynamicImports: true,
+      },
     }),
     react(),
   ],
+
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),
     },
   },
+
   ssr: {
-    noExternal: ['tslib'],
+    noExternal: ["tslib"],
   },
+
   optimizeDeps: {
-    include: ['tslib'],
+    include: ["tslib"],
   },
+
   build: {
     rollupOptions: {
-      external: [],  // força nenhum módulo a ser externalizado
       output: {
         inlineDynamicImports: true,
       },
