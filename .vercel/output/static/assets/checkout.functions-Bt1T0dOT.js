@@ -1,1 +1,0 @@
-import{d as e,e as a}from"./index-JVoS19JH.js";const t=e({method:"POST"}).handler(a("2f06a034265b06b69152a68bc408232e21547ec9ac87c003807e7d86393bf7ed")),r=e({method:"GET"}).handler(a("6b4504be85b69592a4c7b8469f8bbe933d46dc98629a895883aa2f80a6234560"));export{t as c,r as m};
