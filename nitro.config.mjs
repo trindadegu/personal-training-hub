@@ -1,7 +1,7 @@
-import { defineNitroConfig } from 'nitropack/config';
-
-export default defineNitroConfig({
+export default {
   preset: 'vercel',
   inlineDynamicImports: true,
-  noExternals: ['tslib']
-});
+  externals: {
+    inline: ['tslib']
+  }
+};
