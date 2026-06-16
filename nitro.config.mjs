@@ -1,7 +1,2 @@
-export default {
-  preset: 'vercel',
-  inlineDynamicImports: true,
-  externals: {
-    inline: ['tslib']
-  }
-};
+// Removido para deixar o tanstackStart gerenciar o Nitro internamente
+export default {};
