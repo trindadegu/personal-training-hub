@@ -16,7 +16,6 @@ export default defineConfig({
       },
       nitro: {
         preset: "vercel",
-        noExternals: ["tslib"],
         inlineDynamicImports: true,
       },
     }),

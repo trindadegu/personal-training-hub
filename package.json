@@ -10,7 +10,6 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write ."
-    
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
@@ -54,7 +53,6 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
-    "dotenv": "^17.4.2",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.38.0",
     "input-otp": "^1.4.2",
@@ -84,6 +82,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
+    "dotenv": "^17.4.2",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
@@ -95,13 +94,5 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^7.3.1"
-  },
-  "nitro": {
-    "externals": {
-      "inline": [
-        "tslib"
-      ]
-    }
   }
-  
 }
