@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import type {} from "nitro/vite";
+import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -9,13 +9,10 @@ import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 
 export default defineConfig({
-  // Gera a saída serverless do Vercel (.vercel/output)
-  nitro: {
-    preset: "vercel",
-  },
-
   plugins: [
     tailwindcss(),
+    // Gera a saída serverless do Vercel em .vercel/output
+    nitro({ preset: "vercel" }),
     tanstackStart({
       server: {
         entry: "server",
