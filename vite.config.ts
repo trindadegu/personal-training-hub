@@ -34,12 +34,4 @@ export default defineConfig({
   optimizeDeps: {
     include: ["tslib"],
   },
-
-  build: {
-    rollupOptions: {
-      output: {
-        inlineDynamicImports: true,
-      },
-    },
-  },
 });
