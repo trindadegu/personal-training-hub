@@ -8,11 +8,13 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 
+// No Vercel a saída serverless vai para .vercel/output; no Lovable mantemos o build padrão.
+const isVercel = Boolean(process.env["VERCEL"]);
+
 export default defineConfig({
   plugins: [
     tailwindcss(),
-    // Gera a saída serverless do Vercel em .vercel/output
-    nitro({ preset: "vercel" }),
+    ...(isVercel ? [nitro({ preset: "vercel" })] : []),
     tanstackStart({
       server: {
         entry: "server",
