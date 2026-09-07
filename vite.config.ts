@@ -8,6 +8,11 @@ import react from "@vitejs/plugin-react";
 import { resolve } from "path";
 
 export default defineConfig({
+  // Gera a saída serverless do Vercel (.vercel/output)
+  nitro: {
+    preset: "vercel",
+  },
+
   plugins: [
     tailwindcss(),
     tanstackStart({
