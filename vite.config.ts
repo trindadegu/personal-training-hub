@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import type {} from "nitro/vite";
 import { defineConfig } from "vite";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
